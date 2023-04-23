@@ -1,0 +1,11 @@
+.vscode/
+.vim/
+.project
+.settings/
+.classpath
+target/
+bin/
+*~
+*.class
+/bin/
+tmp.*
