@@ -6,7 +6,7 @@ public class Utils {
      * guaranteed to never return.
      *
      * @param e
-     *          The exception that caused the panic.
+     *            The exception that caused the panic.
      * @return Return a runtime exception it is given, so that it can be thrown
      *         again to
      *         avoid control flow checks failing.

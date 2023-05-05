@@ -50,4 +50,20 @@ public class User {
             connection.rollback();
         }
     }
+
+    public static User getUser(Database db, int id) throws SQLException {
+        var connection = db.getConnection();
+        try (var statement = connection.createStatement()) {
+            var results = statement.executeQuery("SELECT id, username, password FROM user WHERE id = " + id);
+            if (results.next()) {
+                return new User(results.getInt(1), results.getString(2), results.getString(3));
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            connection.rollback();
+        }
+    }
 }

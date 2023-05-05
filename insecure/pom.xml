@@ -33,7 +33,8 @@
                     <configFile>${project.basedir}/formatter-config.xml</configFile>
                     <directories>
                         <directory>${project.build.sourceDirectory}</directory>
-                        <directory>${project.basedir}/src</directory>
+                        <directory>${project.basedir}/src/main/java</directory>
+                        <directory>${project.basedir}/src/test/java</directory>
                         <directory>${project.build.directory}/generated-sources</directory>
                     </directories>
                 </configuration>
