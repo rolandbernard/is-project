@@ -1,0 +1,18 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head}" th:with="title='Login'">
+</head>
+
+<body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
+    <header th:replace="~{fragments/layout :: header}"></header>
+    <div class="container">
+        <h1 th:utext="${product.name}">
+        </h1>
+        <div th:text="${#numbers.formatDecimal(product.price / 100, 1, 2)} +  ' €'"></div>
+        <a th:if="${!isOwner}" th:href="'/product/buy/' + ${product.id}" class="btn btn-primary">Buy</a>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+
+</html>

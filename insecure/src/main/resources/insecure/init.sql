@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS `product` (
     `id` integer PRIMARY KEY AUTOINCREMENT,
     `name` varchar(255) NOT NULL,
     `price` int(11) NOT NULL,
+    `user_id` int(11) NOT NULL,
     `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS `order` (

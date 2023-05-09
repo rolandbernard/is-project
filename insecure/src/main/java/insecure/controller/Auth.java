@@ -34,22 +34,18 @@ public class Auth {
     public String postLogin(@RequestParam(value = "username") String username,
             @RequestParam(value = "password") String password,
             @RequestParam(value = "origin", required = false) String origin,
-             Model model, HttpServletResponse response) {
-        try {
-            model.addAttribute("username", username);
-            try (var db = new Database()) {
-                var user = User.getUser(db, username, password);
-                if (user == null) {
-                    model.addAttribute("error", "Invalid username or password");
-                    model.addAttribute("origin", origin);
-                    return "login";
-                }
-                Cookie cookie = new Cookie("user-id", String.valueOf(user.id));
-                response.addCookie(cookie);
-                return "redirect:" + (origin == null ? "/" : origin);
+            Model model, HttpServletResponse response) throws Exception {
+        model.addAttribute("username", username);
+        try (var db = new Database()) {
+            var user = User.getUser(db, username, password);
+            if (user == null) {
+                model.addAttribute("error", "Invalid username or password");
+                model.addAttribute("origin", origin);
+                return "login";
             }
-        } catch (Exception e) {
-            return "error";
+            Cookie cookie = new Cookie("user-id", String.valueOf(user.id));
+            response.addCookie(cookie);
+            return "redirect:" + (origin == null ? "/" : origin);
         }
     }
 
@@ -62,25 +58,21 @@ public class Auth {
     public String postRegister(@RequestParam(value = "username") String username,
             @RequestParam(value = "password") String password,
             @RequestParam(value = "password-repeat") String passwordRepeat,
-            Model model, HttpServletResponse response) {
-        try {
-            model.addAttribute("username", username);
-            if (!password.equals(passwordRepeat)) {
-                model.addAttribute("error", "The two passwords are not equal");
+            Model model, HttpServletResponse response) throws Exception {
+        model.addAttribute("username", username);
+        if (!password.equals(passwordRepeat)) {
+            model.addAttribute("error", "The two passwords are not equal");
+            return "register";
+        }
+        try (var db = new Database()) {
+            var user = User.create(db, username, password);
+            if (user == null) {
+                model.addAttribute("error", "Username already exists");
                 return "register";
             }
-            try (var db = new Database()) {
-                var user = User.create(db, username, password);
-                if (user == null) {
-                    model.addAttribute("error", "Username already exists");
-                    return "register";
-                }
-                Cookie cookie = new Cookie("user-id", String.valueOf(user.id));
-                response.addCookie(cookie);
-                return "redirect:/";
-            }
-        } catch (Exception e) {
-            return "error";
+            Cookie cookie = new Cookie("user-id", String.valueOf(user.id));
+            response.addCookie(cookie);
+            return "redirect:/";
         }
     }
 }

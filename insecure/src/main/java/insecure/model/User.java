@@ -40,7 +40,7 @@ public class User {
             var results = statement.executeQuery("SELECT id, username, password FROM user WHERE username = '" + username
                     + "' AND password = '" + password + "'");
             if (results.next()) {
-                return new User(results.getInt(1), results.getString(2), results.getString(3));
+                return new User(results.getInt("id"), results.getString("username"), results.getString("password"));
             } else {
                 return null;
             }
@@ -56,7 +56,7 @@ public class User {
         try (var statement = connection.createStatement()) {
             var results = statement.executeQuery("SELECT id, username, password FROM user WHERE id = " + id);
             if (results.next()) {
-                return new User(results.getInt(1), results.getString(2), results.getString(3));
+                return new User(results.getInt("id"), results.getString("username"), results.getString("password"));
             } else {
                 return null;
             }
