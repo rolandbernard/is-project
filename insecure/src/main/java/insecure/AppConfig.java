@@ -13,6 +13,6 @@ public class AppConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new RejectAuth())
                 .addPathPatterns("/login", "/register");
-        registry.addInterceptor(new RequireAuth()).addPathPatterns("/logout");
+        registry.addInterceptor(new RequireAuth()).excludePathPatterns("/login", "/register");
     }
 }

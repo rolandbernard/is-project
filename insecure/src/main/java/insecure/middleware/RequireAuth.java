@@ -1,5 +1,7 @@
 package insecure.middleware;
 
+import java.net.URLEncoder;
+
 import org.springframework.web.servlet.*;
 
 import insecure.Database;
@@ -27,7 +29,7 @@ public class RequireAuth implements HandlerInterceptor {
                 }
             }
         }
-        response.sendRedirect("/login");
+        response.sendRedirect("/login?origin=" + URLEncoder.encode(request.getRequestURI(), "UTF-8"));
         return false;
     }
 

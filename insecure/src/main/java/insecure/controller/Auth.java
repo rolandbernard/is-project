@@ -25,25 +25,31 @@ public class Auth {
 
     @GetMapping("/login")
     public String getLogin(Model model, HttpServletRequest request) {
+        String origin = request.getParameter("origin");
+        model.addAttribute("origin", origin);
         return "login";
     }
 
     @PostMapping("/login")
     public String postLogin(@RequestParam(value = "username") String username,
-            @RequestParam(value = "password") String password, Model model, HttpServletResponse response) {
+            @RequestParam(value = "password") String password,
+            @RequestParam(value = "origin", required = false) String origin,
+             Model model, HttpServletResponse response) {
         try {
+            model.addAttribute("username", username);
             try (var db = new Database()) {
                 var user = User.getUser(db, username, password);
                 if (user == null) {
                     model.addAttribute("error", "Invalid username or password");
+                    model.addAttribute("origin", origin);
                     return "login";
                 }
                 Cookie cookie = new Cookie("user-id", String.valueOf(user.id));
                 response.addCookie(cookie);
-                return "redirect:/";
+                return "redirect:" + (origin == null ? "/" : origin);
             }
         } catch (Exception e) {
-            return "server-error";
+            return "error";
         }
     }
 
@@ -54,8 +60,15 @@ public class Auth {
 
     @PostMapping("/register")
     public String postRegister(@RequestParam(value = "username") String username,
-            @RequestParam(value = "password") String password, Model model, HttpServletResponse response) {
+            @RequestParam(value = "password") String password,
+            @RequestParam(value = "password-repeat") String passwordRepeat,
+            Model model, HttpServletResponse response) {
         try {
+            model.addAttribute("username", username);
+            if (!password.equals(passwordRepeat)) {
+                model.addAttribute("error", "The two passwords are not equal");
+                return "register";
+            }
             try (var db = new Database()) {
                 var user = User.create(db, username, password);
                 if (user == null) {
@@ -67,7 +80,7 @@ public class Auth {
                 return "redirect:/";
             }
         } catch (Exception e) {
-            return "server-error";
+            return "error";
         }
     }
 }
