@@ -1,23 +1,21 @@
 package insecure.middleware;
 
 import org.springframework.web.servlet.*;
+
+import insecure.model.User;
 import jakarta.servlet.http.*;
 
 public class RejectAuth implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        var cookies = request.getCookies();
-        if (cookies != null) {
-            for (var cookie : cookies) {
-                if (cookie.getName().equals("user-id")) {
-                    response.sendRedirect("/");
-                    return false;
-                }
-            }
+        var user = (User) request.getAttribute("user");
+        if (user != null) {
+            response.sendRedirect("/");
+            return false;
+        } else {
+            return true;
         }
-
-        return true;
     }
 
     @Override

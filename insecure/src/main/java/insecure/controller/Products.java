@@ -14,7 +14,7 @@ import insecure.Utils;
 public class Products {
     @GetMapping("/create")
     public String getCreate() {
-        return "product-form";
+        return "product/create";
     }
 
     @PostMapping("/create")
@@ -32,7 +32,7 @@ public class Products {
                 model.addAttribute("error", "Price must be a number");
             }
         }
-        return "product-form";
+        return "product/create";
     }
 
     @GetMapping("/{id}")
@@ -46,7 +46,7 @@ public class Products {
             model.addAttribute("product", product);
             model.addAttribute("isOwner", product.userId == user.id);
         }
-        return "product";
+        return "product/info";
     }
 
     @GetMapping("/my")
@@ -57,9 +57,9 @@ public class Products {
             model.addAttribute("products", products);
         }
         model.addAttribute("title", "My products");
-        return "product-list";
+        return "product/list";
     }
-    
+
     @GetMapping("/all")
     public String getAll(Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
@@ -67,7 +67,7 @@ public class Products {
             model.addAttribute("products", products);
         }
         model.addAttribute("title", "All products");
-        return "product-list";
+        return "product/list";
     }
 
 }

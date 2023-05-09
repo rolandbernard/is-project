@@ -15,7 +15,7 @@
                         <p th:text="${error}" class="alert alert-danger text-center">
                         </p>
                     </div>
-                    <form action="/register" method="post">
+                    <form action="/auth/register" method="post">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" name="username" class="form-control" id="username" th:value="${username}">
@@ -31,7 +31,7 @@
                         <input type="hidden" name="origin" th:value="${origin}">
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn d-block btn-primary">Register</button>
-                            <a href="/login" class="btn d-block">Already have an account?</a>
+                            <a href="/auth/login" class="btn d-block">Already have an account?</a>
                         </div>
                     </form>
                 </div>

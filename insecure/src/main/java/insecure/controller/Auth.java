@@ -9,6 +9,7 @@ import insecure.model.*;
 import jakarta.servlet.http.*;
 
 @Controller
+@RequestMapping("/auth")
 public class Auth {
     @GetMapping("/logout")
     public String getLogout(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -20,14 +21,14 @@ public class Auth {
                 break;
             }
         }
-        return "redirect:/login";
+        return "redirect:/auth/login";
     }
 
     @GetMapping("/login")
     public String getLogin(Model model, HttpServletRequest request) {
         String origin = request.getParameter("origin");
         model.addAttribute("origin", origin);
-        return "login";
+        return "auth/login";
     }
 
     @PostMapping("/login")
@@ -41,9 +42,10 @@ public class Auth {
             if (user == null) {
                 model.addAttribute("error", "Invalid username or password");
                 model.addAttribute("origin", origin);
-                return "login";
+                return "auth/login";
             }
             Cookie cookie = new Cookie("user-id", String.valueOf(user.id));
+            cookie.setPath("/");
             response.addCookie(cookie);
             return "redirect:" + (origin == null ? "/" : origin);
         }
@@ -51,7 +53,7 @@ public class Auth {
 
     @GetMapping("/register")
     public String getRegister(Model model, HttpServletRequest request) {
-        return "register";
+        return "auth/register";
     }
 
     @PostMapping("/register")
@@ -62,13 +64,13 @@ public class Auth {
         model.addAttribute("username", username);
         if (!password.equals(passwordRepeat)) {
             model.addAttribute("error", "The two passwords are not equal");
-            return "register";
+            return "auth/register";
         }
         try (var db = new Database()) {
             var user = User.create(db, username, password);
             if (user == null) {
                 model.addAttribute("error", "Username already exists");
-                return "register";
+                return "auth/register";
             }
             Cookie cookie = new Cookie("user-id", String.valueOf(user.id));
             response.addCookie(cookie);

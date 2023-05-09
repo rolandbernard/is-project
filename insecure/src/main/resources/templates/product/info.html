@@ -10,7 +10,9 @@
         <h1 th:utext="${product.name}">
         </h1>
         <div th:text="${#numbers.formatDecimal(product.price / 100, 1, 2)} +  ' €'"></div>
-        <a th:if="${!isOwner}" th:href="'/product/buy/' + ${product.id}" class="btn btn-primary">Buy</a>
+        <form method="post" th:action="'/order/create/' + ${product.id}">
+            <button th:if="${!isOwner}" class="btn btn-primary" type="submit">Buy</a>
+        </form>
     </div>
     <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>

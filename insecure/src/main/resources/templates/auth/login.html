@@ -1,7 +1,7 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/layout :: head}" th:with="title='Login'">
+<head th:replace="~{fragments/layout :: head(title='Login')}">
 </head>
 
 <body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
@@ -15,7 +15,7 @@
                         <p th:text="${error}" class="alert alert-danger text-center">
                         </p>
                     </div>
-                    <form action="/login" method="post">
+                    <form action="/auth/login" method="post">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" name="username" class="form-control" id="username" th:value="${username}">
@@ -27,7 +27,7 @@
                         <input type="hidden" name="origin" th:value="${origin}">
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn d-block btn-primary">Login</button>
-                            <a href="/register" class="btn d-block">Create an account</a>
+                            <a href="/auth/register" class="btn d-block">Create an account</a>
                         </div>
                     </form>
                 </div>

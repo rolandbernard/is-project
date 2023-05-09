@@ -7,17 +7,17 @@
 <body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
     <header th:replace="~{fragments/layout :: header}"></header>
     <div class="container">
-        <h1 th:text="${title}">
-        </h1>
+        <div class="d-flex justify-content-between mb-3 align-items-center">
+            <h1 th:text="${title}">
+            </h1>
+            <div>
+                <a href="/product/create" class="btn btn-primary ml-2 d-inline-block">Create a new product</a>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-4" th:each="product : ${products}">
-                <a class="card" th:href="'/product/' + ${product.id}">
-                    <div class="card-body">
-                        <h2 class="card-title" th:utext="${product.name}"></h2>
-                        <div class="card-subtitle mb-2 text-body-secondary" th:text="${#numbers.formatDecimal(product.price / 100, 1, 2)} +  ' €'">Card subtitle
-                        </div>
-                    </div>
-                </a>
+                <div th:replace="~{fragments/product :: product-card(product=${product})}">
+                </div>
             </div>
         </div>
     </div>
