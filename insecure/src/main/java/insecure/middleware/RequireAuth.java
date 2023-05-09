@@ -16,7 +16,8 @@ public class RequireAuth implements HandlerInterceptor {
             request.setAttribute("user", user);
             return true;
         } else {
-            response.sendRedirect("/auth/login?origin=" + URLEncoder.encode(request.getRequestURI(), "UTF-8"));
+            var origin = request.getRequestURI().strip();
+            response.sendRedirect("/auth/login?origin=" + URLEncoder.encode(origin.isBlank() ? "/" : origin, "UTF-8"));
             return false;
         }
     }

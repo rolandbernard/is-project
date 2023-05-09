@@ -17,6 +17,7 @@ public class Auth {
         for (var cookie : cookies) {
             if (cookie.getName().equals("user-id")) {
                 cookie.setMaxAge(0);
+                cookie.setPath("/");
                 response.addCookie(cookie);
                 break;
             }
@@ -47,7 +48,7 @@ public class Auth {
             Cookie cookie = new Cookie("user-id", String.valueOf(user.id));
             cookie.setPath("/");
             response.addCookie(cookie);
-            return "redirect:" + (origin == null ? "/" : origin);
+            return "redirect:" + (origin == null || origin.isBlank() ? "/" : origin);
         }
     }
 
