@@ -11,8 +11,41 @@
         </h1>
         <div th:text="${#numbers.formatDecimal(product.price / 100, 1, 2)} +  ' €'"></div>
         <form method="post" th:action="'/order/create/' + ${product.id}">
-            <button th:if="${!isOwner}" class="btn btn-primary" type="submit">Buy</a>
+            <button th:if="${!isOwner}" class="btn btn-primary" type="submit">Buy</button>
         </form>
+
+        <div th:if="${!isOwner}">
+            <form method="post" th:action="'/product/' + ${product.id} + '/review'">
+                <textarea class="form-control" name="comment" rows="3" placeholder="Write a review"></textarea>
+                <select class="form-control" name="rating">
+                    <option value="1">1 Star</option>
+                    <option value="2">2 Stars</option>
+                    <option value="3">3 Stars</option>
+                    <option value="4">4 Stars</option>
+                    <option value="5">5 Stars</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </form>
+        </div>
+        <div th:each="review : ${reviews}">
+            <h3 th:utext="${review.user.username}"></h3>
+            <div th:utext="${#dates.format(review.review.createdAt, 'dd.MM.yyyy, HH:mm')}"></div>
+            <div th:utext="${review.review.comment}"></div>
+            <div>
+                <span th:utext="${review.review.rating}"></span> Stars
+            </div>
+            <div th:each="response : ${review.responses}">
+                <div th:utext="${response.user.username}"></div>
+                <div th:utext="${#dates.format(response.response.createdAt, 'dd.MM.yyyy, HH:mm')}"></div>
+                <div th:utext="${response.response.comment}"></div>
+            </div>
+            <form method="post" th:action="'/product/' + ${product.id} + '/review/'+ ${review.review.id}+'/response'">
+                <textarea class="form-control" name="comment" rows="3" placeholder="Write a response"></textarea>
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </form>
+        </div>
+
+
     </div>
     <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>

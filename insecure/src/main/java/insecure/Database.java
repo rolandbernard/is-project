@@ -15,12 +15,12 @@ public final class Database implements AutoCloseable {
     private Connection connection;
 
     public Database() throws SQLException {
-        connection = DriverManager.getConnection("jdbc:sqlite:./database.db");
+        connection = DriverManager.getConnection("jdbc:sqlite:database.db");
         connection.setAutoCommit(false);
     }
 
     private void initializeSchema() throws SQLException, IOException {
-        var initScriptStream = Database.class.getResourceAsStream("init.sql");
+        var initScriptStream = Database.class.getResourceAsStream("/sql/init.sql");
         var initScript = new String(initScriptStream.readAllBytes(), "UTF8");
         var statement = connection.createStatement();
         for (var stmt : initScript.split(";")) {

@@ -11,6 +11,12 @@ import jakarta.servlet.http.*;
 @Controller
 @RequestMapping("/auth")
 public class Auth {
+    private static void addAuthCookie(HttpServletResponse response, User user) {
+        Cookie cookie = new Cookie("user-id", String.valueOf(user.id));
+        cookie.setPath("/");
+        response.addCookie(cookie);
+    }
+
     @GetMapping("/logout")
     public String getLogout(Model model, HttpServletRequest request, HttpServletResponse response) {
         var cookies = request.getCookies();
@@ -45,9 +51,7 @@ public class Auth {
                 model.addAttribute("origin", origin);
                 return "auth/login";
             }
-            Cookie cookie = new Cookie("user-id", String.valueOf(user.id));
-            cookie.setPath("/");
-            response.addCookie(cookie);
+            addAuthCookie(response, user);
             return "redirect:" + (origin == null || origin.isBlank() ? "/" : origin);
         }
     }
@@ -73,8 +77,7 @@ public class Auth {
                 model.addAttribute("error", "Username already exists");
                 return "auth/register";
             }
-            Cookie cookie = new Cookie("user-id", String.valueOf(user.id));
-            response.addCookie(cookie);
+            addAuthCookie(response, user);
             return "redirect:/";
         }
     }
