@@ -43,10 +43,40 @@ public class Products {
             if (product == null) {
                 throw new Exception("Product not found");
             }
+            var reviews = Response.getForProduct(db, product.id);
             model.addAttribute("product", product);
             model.addAttribute("isOwner", product.userId == user.id);
+            model.addAttribute("reviews", reviews);
         }
         return "product/info";
+    }
+
+    @PostMapping("/{productId}/review/{reviewId}/response")
+    public String postResponse(
+            @PathVariable int productId,
+            @PathVariable int reviewId, @RequestParam String comment,
+            HttpServletRequest request) throws Exception {
+        try (var db = new Database()) {
+            User user = (User) request.getAttribute("user");
+            Response.create(db, reviewId, user.id, comment);
+            return "redirect:/product/" + productId;
+        }
+    }
+
+    @PostMapping("/{id}/review")
+    public String postReview(
+            @PathVariable int id, @RequestParam String comment, @RequestParam() int rating,
+            Model model, HttpServletRequest request)
+            throws Exception {
+        try (var db = new Database()) {
+            User user = (User) request.getAttribute("user");
+            var product = Product.getProduct(db, id);
+            if (product == null) {
+                throw new Exception("Product not found");
+            }
+            Review.create(db, user.id, product.id, rating, comment);
+            return "redirect:/product/" + product.id;
+        }
     }
 
     @GetMapping("/my")
