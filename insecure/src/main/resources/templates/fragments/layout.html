@@ -51,7 +51,13 @@
                         </ul>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/chat">Chat</a>
+                    </li>
+                    <li class="nav-item" th:if="${user} == null">
                         <a class="btn btn-primary" href="/auth/login">Login</a>
+                    </li>
+                    <li class="nav-item" th:if="${user} != null">
+                        <a class="btn btn-primary" href="/auth/logout">Logout</a>
                     </li>
                 </ul>
             </div>

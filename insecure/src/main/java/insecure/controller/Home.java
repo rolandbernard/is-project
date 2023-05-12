@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import insecure.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 
-@Controller()
+@Controller
 public class Home {
-    @GetMapping("/")
+    @GetMapping
     public String getHome(Model model, HttpServletRequest request) {
         User user = (User) request.getAttribute("user");
         if (user == null) {

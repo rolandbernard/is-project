@@ -22,33 +22,36 @@ public class Products {
             @RequestParam String name, @RequestParam("price") String priceString, Model model,
             HttpServletRequest request)
             throws Exception {
+        User user = (User) request.getAttribute("user");
         try (var db = new Database()) {
             try {
                 int price = Utils.parseNumber(priceString);
-                User user = (User) request.getAttribute("user");
                 var product = Product.create(db, name, price, user.id);
                 return "redirect:/product/" + product.id;
             } catch (NumberFormatException e) {
                 model.addAttribute("error", "Price must be a number");
             }
         }
+        model.addAttribute("user", user);
         return "product/create";
     }
 
     @GetMapping("/{id}")
     public String get(@PathVariable int id, Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
-            var product = Product.getProduct(db, id);
-            User user = (User) request.getAttribute("user");
-            if (product == null) {
+            var productVendor = Product.getProduct(db, id);
+            var user = (User) request.getAttribute("user");
+            if (productVendor == null) {
                 throw new Exception("Product not found");
             }
+            var product = productVendor.product();
             var reviews = Response.getForProduct(db, product.id);
-            model.addAttribute("product", product);
+            model.addAttribute("product", productVendor);
             model.addAttribute("isOwner", product.userId == user.id);
             model.addAttribute("reviews", reviews);
+            model.addAttribute("user", user);
+            return "product/info";
         }
-        return "product/info";
     }
 
     @PostMapping("/{productId}/review/{reviewId}/response")
@@ -70,7 +73,7 @@ public class Products {
             throws Exception {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
-            var product = Product.getProduct(db, id);
+            var product = Product.getProduct(db, id).product();
             if (product == null) {
                 throw new Exception("Product not found");
             }
@@ -85,19 +88,21 @@ public class Products {
             User user = (User) request.getAttribute("user");
             var products = Product.getProducts(db, user.id);
             model.addAttribute("products", products);
+            model.addAttribute("user", user);
+            model.addAttribute("title", "My products");
+            return "product/list";
         }
-        model.addAttribute("title", "My products");
-        return "product/list";
     }
 
     @GetMapping("/all")
     public String getAll(Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
+            var user = (User) request.getAttribute("user");
             var products = Product.getProducts(db);
             model.addAttribute("products", products);
+            model.addAttribute("user", user);
+            model.addAttribute("title", "All products");
+            return "product/list";
         }
-        model.addAttribute("title", "All products");
-        return "product/list";
     }
-
 }

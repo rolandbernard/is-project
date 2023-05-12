@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Product implements Serializable {
+    public record ProductVendor(Product product, User vendor) {
+    }
+
     public final int id;
     public final String name;
     public final float price;
@@ -40,14 +43,17 @@ public class Product implements Serializable {
         }
     }
 
-    public static Product getProduct(Database db, int id) throws SQLException {
+    public static ProductVendor getProduct(Database db, int id) throws SQLException {
         var connection = db.getConnection();
         try (var statement = connection.createStatement()) {
             var results = statement.executeQuery(
-                    "SELECT id, name, price, user_id FROM product WHERE id = " + id);
+                    "SELECT product.id as product_id, name, price, user_id, username, password "
+                            + "FROM product JOIN user ON (user_id = user.id) WHERE product.id = " + id);
             if (results.next()) {
-                return new Product(results.getInt("id"), results.getString("name"), results.getInt("price"),
-                        results.getInt("user_id"));
+                return new ProductVendor(new Product(results.getInt("product_id"), results.getString("name"),
+                        results.getInt("price"), results.getInt("user_id")),
+                        new User(results.getInt("user_id"), results.getString("username"),
+                                results.getString("password")));
             } else {
                 return null;
             }

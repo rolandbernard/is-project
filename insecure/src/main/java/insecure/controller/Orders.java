@@ -19,6 +19,7 @@ public class Orders {
             User user = (User) request.getAttribute("user");
             Order order = Order.create(db, productId, user.id);
             model.addAttribute("order", order);
+            model.addAttribute("user", user);
             return "order/success";
         }
     }
@@ -29,9 +30,10 @@ public class Orders {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
             model.addAttribute("orders", Order.getByUser(db, user.id));
+            model.addAttribute("user", user);
+            model.addAttribute("title", "My Orders");
+            return "order/list";
         }
-        model.addAttribute("title", "My Orders");
-        return "order/list";
     }
 
     @GetMapping("/for-me")
@@ -39,9 +41,10 @@ public class Orders {
             Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
+            model.addAttribute("user", user);
             model.addAttribute("orders", Order.getForUser(db, user.id));
+            model.addAttribute("title", "Orders for Me");
+            return "order/list";
         }
-        model.addAttribute("title", "Orders for Me");
-        return "order/list";
     }
 }

@@ -7,15 +7,15 @@
 <body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
     <header th:replace="~{fragments/layout :: header}"></header>
     <div class="container">
-        <h1 th:utext="${product.name}">
+        <h1 th:utext="${product.product.name}">
         </h1>
-        <div th:text="${#numbers.formatDecimal(product.price / 100, 1, 2)} +  ' €'"></div>
-        <form method="post" th:action="'/order/create/' + ${product.id}">
+        <a th:href="'/chat/' + ${product.vendor.id}" th:utext="${product.vendor.username}"></a>
+        <div th:text="${#numbers.formatDecimal(product.product.price / 100, 1, 2)} +  ' €'"></div>
+        <form method="post" th:action="'/order/create/' + ${product.product.id}">
             <button th:if="${!isOwner}" class="btn btn-primary" type="submit">Buy</button>
         </form>
-
         <div th:if="${!isOwner}">
-            <form method="post" th:action="'/product/' + ${product.id} + '/review'">
+            <form method="post" th:action="'/product/' + ${product.product.id} + '/review'">
                 <textarea class="form-control" name="comment" rows="3" placeholder="Write a review"></textarea>
                 <select class="form-control" name="rating">
                     <option value="1">1 Star</option>
@@ -39,13 +39,12 @@
                 <div th:utext="${#dates.format(response.response.createdAt, 'dd.MM.yyyy, HH:mm')}"></div>
                 <div th:utext="${response.response.comment}"></div>
             </div>
-            <form method="post" th:action="'/product/' + ${product.id} + '/review/'+ ${review.review.id}+'/response'">
+            <form method="post"
+                th:action="'/product/' + ${product.product.id} + '/review/'+ ${review.review.id}+'/response'">
                 <textarea class="form-control" name="comment" rows="3" placeholder="Write a response"></textarea>
                 <button class="btn btn-primary" type="submit">Submit</button>
             </form>
         </div>
-
-
     </div>
     <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
