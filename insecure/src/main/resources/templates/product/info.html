@@ -6,16 +6,16 @@
 
 <body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
     <header th:replace="~{fragments/layout :: header}"></header>
-    <div class="container">
+    <div class="container d-flex flex-column" style="gap: 10px">
         <h1 th:utext="${product.product.name}">
         </h1>
         <a th:href="'/chat/' + ${product.vendor.id}" th:utext="${product.vendor.username}"></a>
-        <div th:text="${#numbers.formatDecimal(product.product.price / 100, 1, 2)} +  ' €'"></div>
+        <div class="ms-2" th:text="${#numbers.formatDecimal(product.product.price / 100, 1, 2)} +  ' €'"></div>
         <form method="post" th:action="'/order/create/' + ${product.product.id}">
             <button th:if="${!isOwner}" class="btn btn-primary" type="submit">Buy</button>
         </form>
         <div th:if="${!isOwner}">
-            <form method="post" th:action="'/product/' + ${product.product.id} + '/review'">
+            <form method="post" class="d-flex flex-column" th:action="'/product/' + ${product.product.id} + '/review'">
                 <textarea class="form-control" name="comment" rows="3" placeholder="Write a review"></textarea>
                 <select class="form-control" name="rating">
                     <option value="1">1 Star</option>
@@ -24,24 +24,31 @@
                     <option value="4">4 Stars</option>
                     <option value="5">5 Stars</option>
                 </select>
-                <button class="btn btn-primary" type="submit">Submit</button>
+                <button class="btn btn-primary w-25" type="submit">Submit</button>
             </form>
         </div>
-        <div th:each="review : ${reviews}">
-            <h3 th:utext="${review.user.username}"></h3>
-            <div th:utext="${#dates.format(review.review.createdAt, 'dd.MM.yyyy, HH:mm')}"></div>
-            <div th:utext="${review.review.comment}"></div>
-            <div>
-                <span th:utext="${review.review.rating}"></span> Stars
+        <div th:each="review : ${reviews}" class="d-flex flex-column mt-3" style="gap: 10px">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title"  th:utext="${review.user.username}"></h3>
+                    <h6 class="card-subtitle mb-2 text-body-secondary" th:utext="${review.review.comment}"></h6>
+                    <div>
+                        <span class="card-text" th:utext="${review.review.rating}"></span> Stars
+                    </div>
+                    <p class="card-text" th:utext="${#dates.format(review.review.createdAt, 'dd.MM.yyyy, HH:mm')}"></p>
+                </div>
             </div>
-            <div th:each="response : ${review.responses}">
-                <div th:utext="${response.user.username}"></div>
-                <div th:utext="${#dates.format(response.response.createdAt, 'dd.MM.yyyy, HH:mm')}"></div>
-                <div th:utext="${response.response.comment}"></div>
+
+            <div class="card ms-5 mb-3" th:each="response : ${review.responses}">
+                <div class="card-body">
+                    <h5 class="card-title" th:utext="${response.user.username}"></h5>
+                    <h6 class="card-subtitle mb-2 text-body-secondary" th:utext="${response.response.comment}"></h6>
+                    <p class="card-text" th:utext="${#dates.format(response.response.createdAt, 'dd.MM.yyyy, HH:mm')}"></p>
+                </div>
             </div>
             <form method="post"
                 th:action="'/product/' + ${product.product.id} + '/review/'+ ${review.review.id}+'/response'">
-                <textarea class="form-control" name="comment" rows="3" placeholder="Write a response"></textarea>
+                <textarea class="form-control mb-2" name="comment" rows="3" placeholder="Write a response"></textarea>
                 <button class="btn btn-primary" type="submit">Submit</button>
             </form>
         </div>
