@@ -1,7 +1,7 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/layout :: head}" th:with="title='Login'">
+<head th:replace="~{fragments/layout :: head(title=${product.product.name})}">
 </head>
 
 <body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
@@ -14,8 +14,9 @@
         <form method="post" th:action="'/order/create/' + ${product.product.id}">
             <button th:if="${!isOwner}" class="btn btn-primary" type="submit">Buy</button>
         </form>
-        <div th:if="${!isOwner}">
-            <form method="post" class="d-flex flex-column" th:action="'/product/' + ${product.product.id} + '/review'">
+        <div th:if="${!isOwner && !hasReviewed}">
+            <form method="post" class="d-flex flex-column" th:action="'/product/' + ${product.product.id} + '/review'"
+                style="gap: 10px">
                 <textarea class="form-control" name="comment" rows="3" placeholder="Write a review"></textarea>
                 <select class="form-control" name="rating">
                     <option value="1">1 Star</option>
@@ -38,15 +39,14 @@
                     <p class="card-text" th:utext="${#dates.format(review.review.createdAt, 'dd.MM.yyyy, HH:mm')}"></p>
                 </div>
             </div>
-
-            <div class="card ms-5 mb-3" th:each="response : ${review.responses}">
+            <div class="card ms-5" th:each="response : ${review.responses}">
                 <div class="card-body">
                     <h5 class="card-title" th:utext="${response.user.username}"></h5>
                     <h6 class="card-subtitle mb-2 text-body-secondary" th:utext="${response.response.comment}"></h6>
                     <p class="card-text" th:utext="${#dates.format(response.response.createdAt, 'dd.MM.yyyy, HH:mm')}"></p>
                 </div>
             </div>
-            <form method="post"
+            <form method="post" class="ms-5 mt-3"
                 th:action="'/product/' + ${product.product.id} + '/review/'+ ${review.review.id}+'/response'">
                 <textarea class="form-control mb-2" name="comment" rows="3" placeholder="Write a response"></textarea>
                 <button class="btn btn-primary" type="submit">Submit</button>

@@ -18,10 +18,8 @@ public class Products {
     }
 
     @PostMapping("/create")
-    public String postCreate(
-            @RequestParam String name, @RequestParam("price") String priceString, Model model,
-            HttpServletRequest request)
-            throws Exception {
+    public String postCreate(@RequestParam String name, @RequestParam("price") String priceString, Model model,
+            HttpServletRequest request) throws Exception {
         User user = (User) request.getAttribute("user");
         try (var db = new Database()) {
             try {
@@ -48,6 +46,7 @@ public class Products {
             var reviews = Response.getForProduct(db, product.id);
             model.addAttribute("product", productVendor);
             model.addAttribute("isOwner", product.userId == user.id);
+            model.addAttribute("hasReviewed", reviews.stream().anyMatch(review -> review.review().userId == user.id));
             model.addAttribute("reviews", reviews);
             model.addAttribute("user", user);
             return "product/info";
@@ -67,10 +66,8 @@ public class Products {
     }
 
     @PostMapping("/{id}/review")
-    public String postReview(
-            @PathVariable int id, @RequestParam String comment, @RequestParam() int rating,
-            Model model, HttpServletRequest request)
-            throws Exception {
+    public String postReview(@PathVariable int id, @RequestParam String comment, @RequestParam() int rating,
+            Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
             var product = Product.getProduct(db, id).product();

@@ -53,7 +53,8 @@ public class Review {
             var result = statement.executeQuery(
                     "SELECT review.id, user_id, product_id, rating, comment, review.created_at, username, password "
                             + "FROM review JOIN user ON (user_id = user.id) "
-                            + "WHERE product_id = " + productId);
+                            + "WHERE product_id = " + productId
+                            + " ORDER BY review.created_at");
             var reviews = new ArrayList<ReviewUser>();
             while (result.next()) {
                 reviews.add(

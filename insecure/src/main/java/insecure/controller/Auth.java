@@ -41,8 +41,8 @@ public class Auth {
     @PostMapping("/login")
     public String postLogin(@RequestParam(value = "username") String username,
             @RequestParam(value = "password") String password,
-            @RequestParam(value = "origin", required = false) String origin,
-            Model model, HttpServletResponse response) throws Exception {
+            @RequestParam(value = "origin", required = false) String origin, Model model, HttpServletResponse response)
+            throws Exception {
         model.addAttribute("username", username);
         try (var db = new Database()) {
             var user = User.getUser(db, username, password);
@@ -64,8 +64,8 @@ public class Auth {
     @PostMapping("/register")
     public String postRegister(@RequestParam(value = "username") String username,
             @RequestParam(value = "password") String password,
-            @RequestParam(value = "password-repeat") String passwordRepeat,
-            Model model, HttpServletResponse response) throws Exception {
+            @RequestParam(value = "password-repeat") String passwordRepeat, Model model, HttpServletResponse response)
+            throws Exception {
         model.addAttribute("username", username);
         if (!password.equals(passwordRepeat)) {
             model.addAttribute("error", "The two passwords are not equal");

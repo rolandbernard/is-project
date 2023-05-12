@@ -1,0 +1,11 @@
+<body>
+    <div th:fragment="chat-item">
+        <a th:href="'/chat/' + ${user.id}" class="card text-decoration-none">
+            <div class="card-body">
+
+                <h2 th:utext="${user.username}"></h2>
+                <div th:utext="${sender.username} + ': ' + ${message}"></div>
+            </div>
+        </a>
+    </div>
+</body>

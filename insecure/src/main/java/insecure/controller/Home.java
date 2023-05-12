@@ -2,12 +2,13 @@ package insecure.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
 import insecure.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
+@RequestMapping("/")
 public class Home {
     @GetMapping
     public String getHome(Model model, HttpServletRequest request) {

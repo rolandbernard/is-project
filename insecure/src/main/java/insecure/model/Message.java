@@ -51,7 +51,7 @@ public class Message {
         try (var statement = connection.createStatement()) {
             var result = statement.executeQuery(
                     "SELECT (CASE WHEN sender_id = " + userId + " THEN receiver_id ELSE sender_id END) AS other_id, "
-                            + "message.id, sender_id, receiver_id, message, MAX(message.created_at), "
+                            + "message.id, sender_id, receiver_id, message, MAX(message.created_at) AS created_at, "
                             + "sender.username as sender_username, sender.password AS sender_password, "
                             + "receiver.username AS receiver_username, receiver.password AS receiver_password "
                             + "FROM message JOIN user AS sender ON (message.sender_id = sender.id) "

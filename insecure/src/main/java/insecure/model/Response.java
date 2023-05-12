@@ -58,12 +58,13 @@ public class Response {
                             + "FROM review JOIN user ON (review.user_id = user.id) "
                             + "LEFT JOIN response ON (review.id = response.review_id) LEFT JOIN user AS u2 ON (response.user_id = u2.id) "
                             + "WHERE product_id = " + productId
-                            + " ORDER BY review.created_at, review.id, response.created_at");
+                            + " ORDER BY review.created_at DESC, review.id, response.created_at");
             var reviews = new ArrayList<ReviewUserResponses>();
             while (result.next()) {
                 if (reviews.isEmpty() || reviews.get(reviews.size() - 1).review.id != result.getInt("review_id")) {
                     reviews.add(new ReviewUserResponses(
-                            new Review(result.getInt("review_id"), result.getInt("review_user_id"), result.getInt("product_id"),
+                            new Review(result.getInt("review_id"), result.getInt("review_user_id"),
+                                    result.getInt("product_id"),
                                     result.getInt("rating"), result.getString("review_comment"),
                                     result.getTimestamp("review_created_at")),
                             new User(result.getInt("review_user_id"), result.getString("user_username"),
