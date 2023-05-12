@@ -15,9 +15,9 @@ public class Message {
     public final int senderId;
     public final int receiverId;
     public final String message;
-    public final Timestamp createdAt;
+    public final LocalDateTime createdAt;
 
-    public Message(int id, int senderId, int receiverId, String message, Timestamp createAt) {
+    public Message(int id, int senderId, int receiverId, String message, LocalDateTime createAt) {
         this.id = id;
         this.senderId = senderId;
         this.receiverId = receiverId;
@@ -39,7 +39,7 @@ public class Message {
                 throw new RuntimeException("No key returned from INSERT INTO message");
             }
             connection.commit();
-            return new Message(id, senderId, receiverId, message, Timestamp.valueOf(LocalDateTime.now()));
+            return new Message(id, senderId, receiverId, message, LocalDateTime.now());
         } catch (SQLException e) {
             connection.rollback();
             throw e;
@@ -65,7 +65,7 @@ public class Message {
                         new MessageSenderReceiver(
                                 new Message(result.getInt("id"), result.getInt("sender_id"),
                                         result.getInt("receiver_id"), result.getString("message"),
-                                        result.getTimestamp("created_at")),
+                                        result.getTimestamp("created_at").toLocalDateTime()),
                                 new User(result.getInt("sender_id"), result.getString("sender_username"),
                                         result.getString("sender_password")),
                                 new User(result.getInt("receiver_id"), result.getString("receiver_username"),
@@ -93,7 +93,7 @@ public class Message {
                         new MessageSenderReceiver(
                                 new Message(result.getInt("id"), result.getInt("sender_id"),
                                         result.getInt("receiver_id"), result.getString("message"),
-                                        result.getTimestamp("created_at")),
+                                        result.getTimestamp("created_at").toLocalDateTime()),
                                 new User(result.getInt("sender_id"), result.getString("sender_username"),
                                         result.getString("sender_password")),
                                 new User(result.getInt("receiver_id"), result.getString("receiver_username"),

@@ -15,9 +15,9 @@ public class Review {
     public final int productId;
     public final int rating;
     public final String comment;
-    public final Timestamp createdAt;
+    public final LocalDateTime createdAt;
 
-    public Review(int id, int userId, int productId, int rating, String comment, Timestamp createdAt) {
+    public Review(int id, int userId, int productId, int rating, String comment, LocalDateTime createdAt) {
         this.id = id;
         this.userId = userId;
         this.productId = productId;
@@ -40,7 +40,7 @@ public class Review {
                 throw new RuntimeException("No key returned from INSERT INTO review");
             }
             connection.commit();
-            return new Review(id, userId, productId, rating, comment, Timestamp.valueOf(LocalDateTime.now()));
+            return new Review(id, userId, productId, rating, comment, LocalDateTime.now());
         } catch (SQLException e) {
             connection.rollback();
             throw e;
@@ -61,7 +61,7 @@ public class Review {
                         new ReviewUser(
                                 new Review(result.getInt("id"), result.getInt("user_id"), result.getInt("product_id"),
                                         result.getInt("rating"), result.getString("comment"),
-                                        result.getTimestamp("created_at")),
+                                        result.getTimestamp("created_at").toLocalDateTime()),
                                 new User(result.getInt("user_id"), result.getString("username"),
                                         result.getString("password"))));
             }

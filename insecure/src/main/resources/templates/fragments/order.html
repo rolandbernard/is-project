@@ -11,7 +11,7 @@
                 <span th:utext="${order.user.username}"></span>
             </td>
             <td>
-                <span th:text="${#dates.format(order.order.createdAt, 'dd.MM.yyyy, HH:mm')}"></span>
+                <span th:text="${#temporals.format(order.order.createdAt, 'dd.MM.yyyy, HH:mm')}"></span>
             </td>
         </tr>
     </div>

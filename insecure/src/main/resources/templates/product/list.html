@@ -15,6 +15,18 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-md-6">
+                <form action="/product/search" method="GET">
+                    <div class="input-group mb-3">
+                        <input type="search" class="form-control" placeholder="Search" name="keyword" value="">
+                        <div class="input-group-append ml-2">
+                            <button class="btn btn-outline-secondary" type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
             <div class="col-md-4" th:each="product : ${products}">
                 <div th:replace="~{fragments/product :: product-card(product=${product})}">
                 </div>

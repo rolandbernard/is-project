@@ -15,9 +15,9 @@ public class Order implements Serializable {
     public final int id;
     public final int productId;
     public final int userId;
-    public final Timestamp createdAt;
+    public final LocalDateTime createdAt;
 
-    public Order(int id, int productId, int userId, Timestamp createdAt) {
+    public Order(int id, int productId, int userId, LocalDateTime createdAt) {
         this.id = id;
         this.productId = productId;
         this.userId = userId;
@@ -36,7 +36,7 @@ public class Order implements Serializable {
                 throw new RuntimeException("No key returned from INSERT INTO order");
             }
             connection.commit();
-            return new Order(id, productId, userId, Timestamp.valueOf(LocalDateTime.now()));
+            return new Order(id, productId, userId, LocalDateTime.now());
         } catch (SQLException e) {
             connection.rollback();
             throw e;
@@ -56,7 +56,7 @@ public class Order implements Serializable {
                 orders.add(
                         new OrderProductUser(
                                 new Order(result.getInt("id"), result.getInt("product_id"), result.getInt("user_id"),
-                                        result.getTimestamp("created_at")),
+                                        result.getTimestamp("created_at").toLocalDateTime()),
                                 new Product(result.getInt("product_id"), result.getString("name"),
                                         result.getInt("user_id"), result.getInt("user_id")),
                                 new User(userId, result.getString("username"), result.getString("password"))));
@@ -78,7 +78,7 @@ public class Order implements Serializable {
                 orders.add(
                         new OrderProductUser(
                                 new Order(result.getInt("id"), result.getInt("product_id"), result.getInt("user_id"),
-                                        result.getTimestamp("created_at")),
+                                        result.getTimestamp("created_at").toLocalDateTime()),
                                 new Product(result.getInt("product_id"), result.getString("name"),
                                         result.getInt("user_id"), result.getInt("user_id")),
                                 new User(userId, result.getString("username"), result.getString("password"))));

@@ -80,6 +80,23 @@ public class Product implements Serializable {
         }
     }
 
+    public static List<Product> search(Database db, String keyword) throws SQLException {
+        var connection = db.getConnection();
+        try (var statement = connection.createStatement()) {
+            var results = statement.executeQuery(
+                    "SELECT id, name, price, user_id FROM product WHERE name LIKE '%" + keyword + "%'");
+            var products = new ArrayList<Product>();
+            while (results.next()) {
+                products.add(new Product(results.getInt("id"), results.getString("name"), results.getInt("price"),
+                        results.getInt("user_id")));
+            }
+            return products;
+        } catch (Exception e) {
+            connection.rollback();
+            throw e;
+        }
+    }
+
     public static List<Product> getProducts(Database db) throws SQLException {
         var connection = db.getConnection();
         try (var statement = connection.createStatement()) {

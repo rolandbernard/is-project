@@ -34,6 +34,18 @@ public class Products {
         return "product/create";
     }
 
+    @GetMapping("/search")
+    public String getSearch(@RequestParam String keyword, Model model, HttpServletRequest request) throws Exception {
+        try (var db = new Database()) {
+            var user = (User) request.getAttribute("user");
+            var products = Product.search(db, keyword);
+            model.addAttribute("products", products);
+            model.addAttribute("user", user);
+            model.addAttribute("title", "Search results for \"" + keyword + "\"");
+            return "product/list";
+        }
+    }
+
     @GetMapping("/{id}")
     public String get(@PathVariable int id, Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
@@ -102,4 +114,5 @@ public class Products {
             return "product/list";
         }
     }
+
 }

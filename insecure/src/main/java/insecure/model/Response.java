@@ -17,9 +17,9 @@ public class Response {
     public final int reviewId;
     public final int userId;
     public final String comment;
-    public final Timestamp createdAt;
+    public final LocalDateTime createdAt;
 
-    public Response(int id, int reviewId, int userId, String comment, Timestamp createdAt) {
+    public Response(int id, int reviewId, int userId, String comment, LocalDateTime createdAt) {
         this.id = id;
         this.reviewId = reviewId;
         this.userId = userId;
@@ -40,7 +40,7 @@ public class Response {
                 throw new RuntimeException("No key returned from INSERT INTO review");
             }
             connection.commit();
-            return new Response(id, reviewId, userId, comment, Timestamp.valueOf(LocalDateTime.now()));
+            return new Response(id, reviewId, userId, comment, LocalDateTime.now());
         } catch (SQLException e) {
             connection.rollback();
             throw e;
@@ -66,7 +66,7 @@ public class Response {
                             new Review(result.getInt("review_id"), result.getInt("review_user_id"),
                                     result.getInt("product_id"),
                                     result.getInt("rating"), result.getString("review_comment"),
-                                    result.getTimestamp("review_created_at")),
+                                    result.getTimestamp("review_created_at").toLocalDateTime()),
                             new User(result.getInt("review_user_id"), result.getString("user_username"),
                                     result.getString("user_password")),
                             new ArrayList<>()));
@@ -76,7 +76,7 @@ public class Response {
                             new ResponseUser(
                                     new Response(result.getInt("response_id"), result.getInt("product_id"),
                                             result.getInt("response_user_id"), result.getString("response_comment"),
-                                            result.getTimestamp("response_created_at")),
+                                            result.getTimestamp("response_created_at").toLocalDateTime()),
                                     new User(result.getInt("response_user_id"), result.getString("u2_username"),
                                             result.getString("u2_password"))));
                 }
