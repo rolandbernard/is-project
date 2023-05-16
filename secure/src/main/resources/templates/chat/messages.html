@@ -7,15 +7,15 @@
 <body style="min-height: 100vh; display: flex; flex-direction: column;">
     <header th:replace="~{fragments/layout :: header}"></header>
     <div class="container">
-        <h1 th:utext="${otherUser.username}">
+        <h1 th:text="${otherUser.username}">
         </h1>
         <div>
             <div th:each="message : ${messages}" class="mb-2">
                 <div
                     th:class="${message.sender.id == user.id ? 'd-flex flex-column justify-content-end align-items-end' : 'd-flex flex-column align-items-start'}">
-                    <div th:utext="${message.sender.username}"></div>
+                    <div th:text="${message.sender.username}"></div>
                     <div th:class="${message.sender.id == user.id ? 'card bg-primary text-white' : 'card bg-light'}">
-                        <div class="py-2 px-3 mb-0" th:utext="${message.message.message}"></div>
+                        <div class="py-2 px-3 mb-0" th:text="${message.message.message}"></div>
                     </div>
                 </div>
             </div>

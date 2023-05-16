@@ -27,10 +27,12 @@ public class Message {
 
     public static Message create(Database db, int senderId, int receiverId, String message) throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            statement.execute(
-                    "INSERT INTO message (sender_id, receiver_id, message) VALUES (" + senderId + ", " + receiverId
-                            + ", '" + message + "')");
+        var sql = "INSERT INTO message (sender_id, receiver_id, message) VALUES (?, ?, ?)";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, senderId);
+            statement.setInt(2, receiverId);
+            statement.setString(3, message);
+            statement.execute();
             var keys = statement.getGeneratedKeys();
             int id = -1;
             if (keys.next()) {
@@ -48,18 +50,21 @@ public class Message {
 
     public static List<MessageSenderReceiver> getLastInvolving(Database db, int userId) throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            var result = statement.executeQuery(
-                    "SELECT (CASE WHEN sender_id = " + userId + " THEN receiver_id ELSE sender_id END) AS other_id, "
-                            + "message.id, sender_id, receiver_id, message, MAX(message.created_at) AS created_at, "
-                            + "sender.username as sender_username, sender.password AS sender_password, "
-                            + "receiver.username AS receiver_username, receiver.password AS receiver_password, "
-                            + "sender.is_vendor AS sender_is_vendor, receiver.is_vendor AS receiver_is_vendor "
-                            + "FROM message JOIN user AS sender ON (message.sender_id = sender.id) "
-                            + "JOIN user AS receiver ON (message.receiver_id = receiver.id) "
-                            + "WHERE (sender_id = " + userId + " OR receiver_id = " + userId + ") "
-                            + " GROUP BY other_id"
-                            + " ORDER BY message.created_at DESC");
+        var sql = "SELECT (CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END) AS other_id, "
+                + "message.id, sender_id, receiver_id, message, MAX(message.created_at) AS created_at, "
+                + "sender.username as sender_username, sender.password AS sender_password, "
+                + "receiver.username AS receiver_username, receiver.password AS receiver_password, "
+                + "sender.is_vendor AS sender_is_vendor, receiver.is_vendor AS receiver_is_vendor "
+                + "FROM message JOIN user AS sender ON (message.sender_id = sender.id) "
+                + "JOIN user AS receiver ON (message.receiver_id = receiver.id) "
+                + "WHERE (sender_id = ? OR receiver_id = ?) "
+                + " GROUP BY other_id"
+                + " ORDER BY message.created_at DESC";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            statement.setInt(2, userId);
+            statement.setInt(3, userId);
+            var result = statement.executeQuery();
             var reviews = new ArrayList<MessageSenderReceiver>();
             while (result.next()) {
                 reviews.add(
@@ -78,17 +83,21 @@ public class Message {
 
     public static List<MessageSenderReceiver> getBetween(Database db, int userId, int otherId) throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            var result = statement.executeQuery(
-                    "SELECT message.id, sender_id, receiver_id, message, message.created_at, "
-                            + "sender.username as sender_username, sender.password AS sender_password, "
-                            + "receiver.username AS receiver_username, receiver.password AS receiver_password, "
-                            + "sender.is_vendor AS sender_is_vendor, receiver.is_vendor AS receiver_is_vendor "
-                            + "FROM message JOIN user AS sender ON (message.sender_id = sender.id) "
-                            + "JOIN user AS receiver ON (message.receiver_id = receiver.id) "
-                            + "WHERE (sender_id = " + userId + " AND receiver_id = " + otherId + ") "
-                            + "OR (sender_id = " + otherId + " AND receiver_id = " + userId + ") "
-                            + " ORDER BY message.created_at");
+        var sql = "SELECT message.id, sender_id, receiver_id, message, message.created_at, "
+                + "sender.username as sender_username, sender.password AS sender_password, "
+                + "receiver.username AS receiver_username, receiver.password AS receiver_password, "
+                + "sender.is_vendor AS sender_is_vendor, receiver.is_vendor AS receiver_is_vendor "
+                + "FROM message JOIN user AS sender ON (message.sender_id = sender.id) "
+                + "JOIN user AS receiver ON (message.receiver_id = receiver.id) "
+                + "WHERE (sender_id = ? AND receiver_id = ?) "
+                + "OR (sender_id = ? AND receiver_id = ?) "
+                + " ORDER BY message.created_at";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            statement.setInt(2, otherId);
+            statement.setInt(3, otherId);
+            statement.setInt(4, userId);
+            var result = statement.executeQuery();
             var reviews = new ArrayList<MessageSenderReceiver>();
             while (result.next()) {
                 reviews.add(

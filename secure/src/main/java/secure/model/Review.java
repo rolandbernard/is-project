@@ -29,9 +29,13 @@ public class Review {
     public static Review create(Database db, int userId, int productId, int rating, String comment)
             throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            statement.execute("INSERT INTO review (user_id, product_id, rating, comment) VALUES (" + userId + ", "
-                    + productId + ", " + rating + ", '" + comment + "')");
+        var sql = "INSERT INTO review (user_id, product_id, rating, comment) VALUES (?, ?, ?, ?)";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            statement.setInt(2, productId);
+            statement.setInt(3, rating);
+            statement.setString(4, comment);
+            statement.execute();
             var keys = statement.getGeneratedKeys();
             int id = -1;
             if (keys.next()) {
@@ -49,12 +53,12 @@ public class Review {
 
     public static List<ReviewUser> getForProduct(Database db, int productId) throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            var result = statement.executeQuery(
-                    "SELECT review.id, user_id, product_id, rating, comment, review.created_at, username, password, is_vendor "
-                            + "FROM review JOIN user ON (user_id = user.id) "
-                            + "WHERE product_id = " + productId
-                            + " ORDER BY review.created_at DESC");
+        var sql = "SELECT review.id, user_id, product_id, rating, comment, review.created_at, username, password, is_vendor "
+                + "FROM review JOIN user ON (user_id = user.id) "
+                + "WHERE product_id = ? ORDER BY review.created_at DESC";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, productId);
+            var result = statement.executeQuery();
             var reviews = new ArrayList<ReviewUser>();
             while (result.next()) {
                 reviews.add(

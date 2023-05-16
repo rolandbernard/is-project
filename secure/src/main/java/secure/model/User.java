@@ -19,9 +19,12 @@ public class User {
 
     public static User create(Database db, String username, String password, boolean isVendor) throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            statement.execute("INSERT INTO user (username, password, is_vendor) VALUES ('" + username + "', '"
-                    + password + "', '" + (isVendor ? 1 : 0) + "')");
+        var sql = "INSERT INTO user (username, password, is_vendor) VALUES (?, ?, ?)";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            statement.setString(2, password);
+            statement.setInt(3, isVendor ? 1 : 0);
+            statement.execute();
             var keys = statement.getGeneratedKeys();
             int id = -1;
             if (keys.next()) {
@@ -39,10 +42,11 @@ public class User {
 
     public static User getUser(Database db, String username, String password) throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            var results = statement
-                    .executeQuery("SELECT id, username, password, is_vendor FROM user WHERE username = '" + username
-                            + "' AND password = '" + password + "'");
+        var sql = "SELECT id, username, password, is_vendor FROM user WHERE username = ? AND password = ?";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            statement.setString(2, password);
+            var results = statement.executeQuery();
             if (results.next()) {
                 return new User(results.getInt("id"), results.getString("username"), results.getString("password"),
                         results.getInt("is_vendor"));
@@ -58,8 +62,10 @@ public class User {
 
     public static User getUser(Database db, int id) throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            var results = statement.executeQuery("SELECT id, username, password, is_vendor FROM user WHERE id = " + id);
+        var sql = "SELECT id, username, password, is_vendor FROM user WHERE id = ?";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
+            var results = statement.executeQuery();
             if (results.next()) {
                 return new User(results.getInt("id"), results.getString("username"), results.getString("password"),
                         results.getInt("is_vendor"));

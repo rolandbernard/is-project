@@ -26,8 +26,11 @@ public class Order implements Serializable {
 
     public static Order create(Database db, int productId, int userId) throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            statement.execute("INSERT INTO `order` (product_id, user_id) VALUES (" + productId + ", " + userId + ")");
+        var sql = "INSERT INTO `order` (product_id, user_id) VALUES (?, ?)";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, productId);
+            statement.setInt(2, userId);
+            statement.execute();
             var keys = statement.getGeneratedKeys();
             int id = -1;
             if (keys.next()) {
@@ -45,13 +48,14 @@ public class Order implements Serializable {
 
     public static List<OrderProductUser> getByUser(Database db, int userId) throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            var result = statement.executeQuery(
-                    "SELECT `order`.id, product_id, `order`.user_id, `order`.created_at, name, price, username, password, is_vendor, "
-                            + "product.user_id as product_user_id "
-                            + "FROM `order` JOIN product ON (product_id = product.id) "
-                            + "JOIN user ON (product.user_id = user.id) WHERE `order`.user_id = "
-                            + userId + " ORDER BY `order`.created_at DESC");
+        var sql = "SELECT `order`.id, product_id, `order`.user_id, `order`.created_at, name, price, username, password, is_vendor, "
+                + "product.user_id as product_user_id "
+                + "FROM `order` JOIN product ON (product_id = product.id) "
+                + "JOIN user ON (product.user_id = user.id) WHERE `order`.user_id = ? "
+                + "ORDER BY `order`.created_at DESC";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            var result = statement.executeQuery();
             var orders = new ArrayList<OrderProductUser>();
             while (result.next()) {
                 orders.add(
@@ -70,12 +74,13 @@ public class Order implements Serializable {
 
     public static List<OrderProductUser> getForUser(Database db, int userId) throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            var result = statement.executeQuery(
-                    "SELECT `order`.id, product_id, `order`.user_id, `order`.created_at, name, price, username, password, is_vendor "
-                            + "FROM `order` JOIN product ON (product_id = product.id) "
-                            + "JOIN user ON (`order`.user_id = user.id) WHERE `product`.user_id = "
-                            + userId + " ORDER BY `order`.created_at DESC");
+        var sql = "SELECT `order`.id, product_id, `order`.user_id, `order`.created_at, name, price, username, password, is_vendor "
+                + "FROM `order` JOIN product ON (product_id = product.id) "
+                + "JOIN user ON (`order`.user_id = user.id) WHERE `product`.user_id = ? "
+                + "ORDER BY `order`.created_at DESC";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            var result = statement.executeQuery();
             var orders = new ArrayList<OrderProductUser>();
             while (result.next()) {
                 orders.add(

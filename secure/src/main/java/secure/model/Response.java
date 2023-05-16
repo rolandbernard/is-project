@@ -29,9 +29,12 @@ public class Response {
 
     public static Response create(Database db, int reviewId, int userId, String comment) throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            statement.execute("INSERT INTO response (review_id, user_id, comment) VALUES (" + reviewId + ", " + userId
-                    + ", '" + comment + "')");
+        var sql = "INSERT INTO response (review_id, user_id, comment) VALUES (?, ?, ?)";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, reviewId);
+            statement.setInt(2, userId);
+            statement.setString(3, comment);
+            statement.execute();
             var keys = statement.getGeneratedKeys();
             int id = -1;
             if (keys.next()) {
@@ -49,17 +52,18 @@ public class Response {
 
     public static List<ReviewUserResponses> getForProduct(Database db, int productId) throws SQLException {
         var connection = db.getConnection();
-        try (var statement = connection.createStatement()) {
-            var result = statement.executeQuery(
-                    "SELECT review.id AS review_id, review.user_id AS review_user_id, product_id, rating, review.comment AS review_comment, "
-                            + "review.created_at AS review_created_at, review.user_id AS review_user_id, user.username AS user_username, user.password AS user_password, "
-                            + "response.id AS response_id, response.user_id AS response_user_id, response.comment AS response_comment, "
-                            + "response.created_at AS response_created_at, u2.username AS u2_username, u2.password AS u2_password, "
-                            + "user.is_vendor AS user_is_vendor, u2.is_vendor AS u2_is_vendor "
-                            + "FROM review JOIN user ON (review.user_id = user.id) "
-                            + "LEFT JOIN response ON (review.id = response.review_id) LEFT JOIN user AS u2 ON (response.user_id = u2.id) "
-                            + "WHERE product_id = " + productId
-                            + " ORDER BY review.created_at DESC, review.id, response.created_at");
+        var sql = "SELECT review.id AS review_id, review.user_id AS review_user_id, product_id, rating, review.comment AS review_comment, "
+                + "review.created_at AS review_created_at, review.user_id AS review_user_id, user.username AS user_username, user.password AS user_password, "
+                + "response.id AS response_id, response.user_id AS response_user_id, response.comment AS response_comment, "
+                + "response.created_at AS response_created_at, u2.username AS u2_username, u2.password AS u2_password, "
+                + "user.is_vendor AS user_is_vendor, u2.is_vendor AS u2_is_vendor "
+                + "FROM review JOIN user ON (review.user_id = user.id) "
+                + "LEFT JOIN response ON (review.id = response.review_id) LEFT JOIN user AS u2 ON (response.user_id = u2.id) "
+                + "WHERE product_id = ? "
+                + "ORDER BY review.created_at DESC, review.id, response.created_at";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, productId);
+            var result = statement.executeQuery();
             var reviews = new ArrayList<ReviewUserResponses>();
             while (result.next()) {
                 if (reviews.isEmpty() || reviews.get(reviews.size() - 1).review.id != result.getInt("review_id")) {
