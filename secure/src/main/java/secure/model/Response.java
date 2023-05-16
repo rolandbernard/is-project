@@ -4,7 +4,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import secure.Database;
+import secure.*;
 
 public class Response {
     public record ResponseUser(Response response, User user) {
@@ -13,13 +13,13 @@ public class Response {
     public record ReviewUserResponses(Review review, User user, List<ResponseUser> responses) {
     }
 
-    public final int id;
-    public final int reviewId;
-    public final int userId;
+    public final String id;
+    public final String reviewId;
+    public final String userId;
     public final String comment;
     public final LocalDateTime createdAt;
 
-    public Response(int id, int reviewId, int userId, String comment, LocalDateTime createdAt) {
+    public Response(String id, String reviewId, String userId, String comment, LocalDateTime createdAt) {
         this.id = id;
         this.reviewId = reviewId;
         this.userId = userId;
@@ -27,30 +27,25 @@ public class Response {
         this.createdAt = createdAt;
     }
 
-    public static Response create(Database db, int reviewId, int userId, String comment) throws SQLException {
+    public static Response create(Database db, String reviewId, String userId, String comment) throws SQLException {
         var connection = db.getConnection();
-        var sql = "INSERT INTO response (review_id, user_id, comment) VALUES (?, ?, ?)";
+        var sql = "INSERT INTO response (id, review_id, user_id, comment) VALUES (?, ?, ?, ?)";
         try (var statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, reviewId);
-            statement.setInt(2, userId);
-            statement.setString(3, comment);
+            var uuid = Utils.newUuid();
+            statement.setString(1, uuid);
+            statement.setString(2, reviewId);
+            statement.setString(3, userId);
+            statement.setString(4, comment);
             statement.execute();
-            var keys = statement.getGeneratedKeys();
-            int id = -1;
-            if (keys.next()) {
-                id = keys.getInt(1);
-            } else {
-                throw new RuntimeException("No key returned from INSERT INTO review");
-            }
             connection.commit();
-            return new Response(id, reviewId, userId, comment, LocalDateTime.now());
+            return new Response(uuid, reviewId, userId, comment, LocalDateTime.now());
         } catch (SQLException e) {
             connection.rollback();
             throw e;
         }
     }
 
-    public static List<ReviewUserResponses> getForProduct(Database db, int productId) throws SQLException {
+    public static List<ReviewUserResponses> getForProduct(Database db, String productId) throws SQLException {
         var connection = db.getConnection();
         var sql = "SELECT review.id AS review_id, review.user_id AS review_user_id, product_id, rating, review.comment AS review_comment, "
                 + "review.created_at AS review_created_at, review.user_id AS review_user_id, user.username AS user_username, user.password AS user_password, "
@@ -62,27 +57,27 @@ public class Response {
                 + "WHERE product_id = ? "
                 + "ORDER BY review.created_at DESC, review.id, response.created_at";
         try (var statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, productId);
+            statement.setString(1, productId);
             var result = statement.executeQuery();
             var reviews = new ArrayList<ReviewUserResponses>();
             while (result.next()) {
-                if (reviews.isEmpty() || reviews.get(reviews.size() - 1).review.id != result.getInt("review_id")) {
+                if (reviews.isEmpty() || reviews.get(reviews.size() - 1).review.id.equals(result.getString("review_id"))) {
                     reviews.add(new ReviewUserResponses(
-                            new Review(result.getInt("review_id"), result.getInt("review_user_id"),
-                                    result.getInt("product_id"),
+                            new Review(result.getString("review_id"), result.getString("review_user_id"),
+                                    result.getString("product_id"),
                                     result.getInt("rating"), result.getString("review_comment"),
                                     result.getTimestamp("review_created_at").toLocalDateTime()),
-                            new User(result.getInt("review_user_id"), result.getString("user_username"),
+                            new User(result.getString("review_user_id"), result.getString("user_username"),
                                     result.getString("user_password"), result.getInt("user_is_vendor")),
                             new ArrayList<>()));
                 }
                 if (result.getString("response_comment") != null) {
                     reviews.get(reviews.size() - 1).responses.add(
                             new ResponseUser(
-                                    new Response(result.getInt("response_id"), result.getInt("product_id"),
-                                            result.getInt("response_user_id"), result.getString("response_comment"),
+                                    new Response(result.getString("response_id"), result.getString("product_id"),
+                                            result.getString("response_user_id"), result.getString("response_comment"),
                                             result.getTimestamp("response_created_at").toLocalDateTime()),
-                                    new User(result.getInt("response_user_id"), result.getString("u2_username"),
+                                    new User(result.getString("response_user_id"), result.getString("u2_username"),
                                             result.getString("u2_password"), result.getInt("u2_is_vendor"))));
                 }
             }

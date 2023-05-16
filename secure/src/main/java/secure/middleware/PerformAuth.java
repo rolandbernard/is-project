@@ -15,7 +15,7 @@ public class PerformAuth implements HandlerInterceptor {
             for (var cookie : cookies) {
                 if (cookie.getName().equals("user-id")) {
                     try (var database = new Database()) {
-                        var user = User.getUser(database, Integer.parseInt(cookie.getValue()));
+                        var user = User.getUser(database, cookie.getValue());
                         if (user != null) {
                             request.setAttribute("user", user);
                             return true;

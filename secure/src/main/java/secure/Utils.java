@@ -1,12 +1,14 @@
 package secure;
 
+import java.util.UUID;
+
 public class Utils {
     /**
      * Used for exceptions that we don't want to or can't handle. This function is
      * guaranteed to never return.
      *
      * @param e
-     *            The exception that caused the panic.
+     *          The exception that caused the panic.
      * @return Return a runtime exception it is given, so that it can be thrown
      *         again to
      *         avoid control flow checks failing.
@@ -25,7 +27,7 @@ public class Utils {
      * @param number
      * @return The result of parsing.
      * @throws NumberFormatException
-     *             If the number can not be parsed.
+     *                               If the number can not be parsed.
      */
     public static int parseNumber(String number) throws NumberFormatException {
         var splitComma = number.split(",");
@@ -43,5 +45,14 @@ public class Utils {
         } else {
             throw new NumberFormatException();
         }
+    }
+
+    /**
+     * Generate a random UUID.
+     *
+     * @return A random UUID.
+     */
+    public static String newUuid() {
+        return UUID.randomUUID().toString();
     }
 }

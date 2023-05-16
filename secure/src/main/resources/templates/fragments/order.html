@@ -2,10 +2,10 @@
     <div th:fragment="order-item">
         <tr>
             <td>
-                #<span th:text="${order.order.id}"></span>
+                #<span th:text="${order.order.id.substring(0, 4)}"></span>
             </td>
             <td>
-                <span th:text="${order.product.name}"></span>#<span th:text="${order.product.id}"></span>
+                <span th:text="${order.product.name}"></span>
             </td>
             <td>
                 <span th:text="${order.user.username}" th:if="${user.isVendor}"></span>

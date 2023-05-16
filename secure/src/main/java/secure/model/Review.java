@@ -4,20 +4,20 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import secure.Database;
+import secure.*;
 
 public class Review {
     public record ReviewUser(Review review, User user) {
     }
 
-    public final int id;
-    public final int userId;
-    public final int productId;
+    public final String id;
+    public final String userId;
+    public final String productId;
     public final int rating;
     public final String comment;
     public final LocalDateTime createdAt;
 
-    public Review(int id, int userId, int productId, int rating, String comment, LocalDateTime createdAt) {
+    public Review(String id, String userId, String productId, int rating, String comment, LocalDateTime createdAt) {
         this.id = id;
         this.userId = userId;
         this.productId = productId;
@@ -26,47 +26,42 @@ public class Review {
         this.createdAt = createdAt;
     }
 
-    public static Review create(Database db, int userId, int productId, int rating, String comment)
+    public static Review create(Database db, String userId, String productId, int rating, String comment)
             throws SQLException {
         var connection = db.getConnection();
-        var sql = "INSERT INTO review (user_id, product_id, rating, comment) VALUES (?, ?, ?, ?)";
+        var sql = "INSERT INTO review (id, user_id, product_id, rating, comment) VALUES (?, ?, ?, ?, ?)";
         try (var statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, userId);
-            statement.setInt(2, productId);
-            statement.setInt(3, rating);
-            statement.setString(4, comment);
+            var uuid = Utils.newUuid();
+            statement.setString(1, uuid);
+            statement.setString(2, userId);
+            statement.setString(3, productId);
+            statement.setInt(4, rating);
+            statement.setString(5, comment);
             statement.execute();
-            var keys = statement.getGeneratedKeys();
-            int id = -1;
-            if (keys.next()) {
-                id = keys.getInt(1);
-            } else {
-                throw new RuntimeException("No key returned from INSERT INTO review");
-            }
             connection.commit();
-            return new Review(id, userId, productId, rating, comment, LocalDateTime.now());
+            return new Review(uuid, userId, productId, rating, comment, LocalDateTime.now());
         } catch (SQLException e) {
             connection.rollback();
             throw e;
         }
     }
 
-    public static List<ReviewUser> getForProduct(Database db, int productId) throws SQLException {
+    public static List<ReviewUser> getForProduct(Database db, String productId) throws SQLException {
         var connection = db.getConnection();
         var sql = "SELECT review.id, user_id, product_id, rating, comment, review.created_at, username, password, is_vendor "
                 + "FROM review JOIN user ON (user_id = user.id) "
                 + "WHERE product_id = ? ORDER BY review.created_at DESC";
         try (var statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, productId);
+            statement.setString(1, productId);
             var result = statement.executeQuery();
             var reviews = new ArrayList<ReviewUser>();
             while (result.next()) {
                 reviews.add(
                         new ReviewUser(
-                                new Review(result.getInt("id"), result.getInt("user_id"), result.getInt("product_id"),
+                                new Review(result.getString("id"), result.getString("user_id"), result.getString("product_id"),
                                         result.getInt("rating"), result.getString("comment"),
                                         result.getTimestamp("created_at").toLocalDateTime()),
-                                new User(result.getInt("user_id"), result.getString("username"),
+                                new User(result.getString("user_id"), result.getString("username"),
                                         result.getString("password"),
                                         result.getInt("is_vendor"))));
             }

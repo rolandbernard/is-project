@@ -48,7 +48,7 @@ public class Products {
     }
 
     @GetMapping("/{id}")
-    public String get(@PathVariable int id, Model model, HttpServletRequest request) throws Exception {
+    public String get(@PathVariable String id, Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
             var productVendor = Product.getProduct(db, id);
             var user = (User) request.getAttribute("user");
@@ -68,8 +68,8 @@ public class Products {
 
     @PostMapping("/{productId}/review/{reviewId}/response")
     public String postResponse(
-            @PathVariable int productId,
-            @PathVariable int reviewId, @RequestParam String comment,
+            @PathVariable String productId,
+            @PathVariable String reviewId, @RequestParam String comment,
             HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
@@ -79,7 +79,7 @@ public class Products {
     }
 
     @PostMapping("/{id}/review")
-    public String postReview(@PathVariable int id, @RequestParam String comment, @RequestParam() int rating,
+    public String postReview(@PathVariable String id, @RequestParam String comment, @RequestParam() int rating,
             Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");

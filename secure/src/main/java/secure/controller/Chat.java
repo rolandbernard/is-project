@@ -23,7 +23,7 @@ class Chat {
     }
 
     @GetMapping("/{otherId}")
-    public String chat(@PathVariable int otherId, HttpServletRequest request, Model model) throws Exception {
+    public String chat(@PathVariable String otherId, HttpServletRequest request, Model model) throws Exception {
         try (Database db = new Database()) {
             User user = (User) request.getAttribute("user");
             var messages = Message.getBetween(db, user.id, otherId);
@@ -35,7 +35,7 @@ class Chat {
     }
 
     @PostMapping("/{otherId}")
-    public String chat(@PathVariable int otherId, @RequestParam String message, HttpServletRequest request, Model model)
+    public String chat(@PathVariable String otherId, @RequestParam String message, HttpServletRequest request, Model model)
             throws Exception {
         try (Database db = new Database()) {
             User user = (User) request.getAttribute("user");

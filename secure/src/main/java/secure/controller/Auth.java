@@ -12,7 +12,7 @@ import secure.model.*;
 @RequestMapping("/auth")
 public class Auth {
     private static void addAuthCookie(HttpServletResponse response, User user) {
-        Cookie cookie = new Cookie("user-id", String.valueOf(user.id));
+        Cookie cookie = new Cookie("user-id", user.id);
         cookie.setPath("/");
         response.addCookie(cookie);
     }

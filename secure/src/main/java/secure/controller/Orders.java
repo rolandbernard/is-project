@@ -12,7 +12,7 @@ import secure.model.*;
 @RequestMapping("/order")
 public class Orders {
     @PostMapping("/create/{id}")
-    public String postCreate(@PathVariable("id") int productId, Model model, HttpServletRequest request)
+    public String postCreate(@PathVariable("id") String productId, Model model, HttpServletRequest request)
             throws Exception {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");

@@ -5,19 +5,19 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import secure.Database;
+import secure.*;
 
 public class Message {
     public record MessageSenderReceiver(Message message, User sender, User receiver) {
     }
 
-    public final int id;
-    public final int senderId;
-    public final int receiverId;
+    public final String id;
+    public final String senderId;
+    public final String receiverId;
     public final String message;
     public final LocalDateTime createdAt;
 
-    public Message(int id, int senderId, int receiverId, String message, LocalDateTime createAt) {
+    public Message(String id, String senderId, String receiverId, String message, LocalDateTime createAt) {
         this.id = id;
         this.senderId = senderId;
         this.receiverId = receiverId;
@@ -25,30 +25,25 @@ public class Message {
         this.createdAt = createAt;
     }
 
-    public static Message create(Database db, int senderId, int receiverId, String message) throws SQLException {
+    public static Message create(Database db, String senderId, String receiverId, String message) throws SQLException {
         var connection = db.getConnection();
-        var sql = "INSERT INTO message (sender_id, receiver_id, message) VALUES (?, ?, ?)";
+        var sql = "INSERT INTO message (id, sender_id, receiver_id, message) VALUES (?, ?, ?, ?)";
         try (var statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, senderId);
-            statement.setInt(2, receiverId);
-            statement.setString(3, message);
+            var uuid = Utils.newUuid();
+            statement.setString(1, uuid);
+            statement.setString(2, senderId);
+            statement.setString(3, receiverId);
+            statement.setString(4, message);
             statement.execute();
-            var keys = statement.getGeneratedKeys();
-            int id = -1;
-            if (keys.next()) {
-                id = keys.getInt(1);
-            } else {
-                throw new RuntimeException("No key returned from INSERT INTO message");
-            }
             connection.commit();
-            return new Message(id, senderId, receiverId, message, LocalDateTime.now());
+            return new Message(uuid, senderId, receiverId, message, LocalDateTime.now());
         } catch (SQLException e) {
             connection.rollback();
             throw e;
         }
     }
 
-    public static List<MessageSenderReceiver> getLastInvolving(Database db, int userId) throws SQLException {
+    public static List<MessageSenderReceiver> getLastInvolving(Database db, String userId) throws SQLException {
         var connection = db.getConnection();
         var sql = "SELECT (CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END) AS other_id, "
                 + "message.id, sender_id, receiver_id, message, MAX(message.created_at) AS created_at, "
@@ -61,27 +56,27 @@ public class Message {
                 + " GROUP BY other_id"
                 + " ORDER BY message.created_at DESC";
         try (var statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, userId);
-            statement.setInt(2, userId);
-            statement.setInt(3, userId);
+            statement.setString(1, userId);
+            statement.setString(2, userId);
+            statement.setString(3, userId);
             var result = statement.executeQuery();
             var reviews = new ArrayList<MessageSenderReceiver>();
             while (result.next()) {
                 reviews.add(
                         new MessageSenderReceiver(
-                                new Message(result.getInt("id"), result.getInt("sender_id"),
-                                        result.getInt("receiver_id"), result.getString("message"),
+                                new Message(result.getString("id"), result.getString("sender_id"),
+                                        result.getString("receiver_id"), result.getString("message"),
                                         result.getTimestamp("created_at").toLocalDateTime()),
-                                new User(result.getInt("sender_id"), result.getString("sender_username"),
+                                new User(result.getString("sender_id"), result.getString("sender_username"),
                                         result.getString("sender_password"), result.getInt("sender_is_vendor")),
-                                new User(result.getInt("receiver_id"), result.getString("receiver_username"),
+                                new User(result.getString("receiver_id"), result.getString("receiver_username"),
                                         result.getString("receiver_password"), result.getInt("receiver_is_vendor"))));
             }
             return reviews;
         }
     }
 
-    public static List<MessageSenderReceiver> getBetween(Database db, int userId, int otherId) throws SQLException {
+    public static List<MessageSenderReceiver> getBetween(Database db, String userId, String otherId) throws SQLException {
         var connection = db.getConnection();
         var sql = "SELECT message.id, sender_id, receiver_id, message, message.created_at, "
                 + "sender.username as sender_username, sender.password AS sender_password, "
@@ -93,21 +88,21 @@ public class Message {
                 + "OR (sender_id = ? AND receiver_id = ?) "
                 + " ORDER BY message.created_at";
         try (var statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, userId);
-            statement.setInt(2, otherId);
-            statement.setInt(3, otherId);
-            statement.setInt(4, userId);
+            statement.setString(1, userId);
+            statement.setString(2, otherId);
+            statement.setString(3, otherId);
+            statement.setString(4, userId);
             var result = statement.executeQuery();
             var reviews = new ArrayList<MessageSenderReceiver>();
             while (result.next()) {
                 reviews.add(
                         new MessageSenderReceiver(
-                                new Message(result.getInt("id"), result.getInt("sender_id"),
-                                        result.getInt("receiver_id"), result.getString("message"),
+                                new Message(result.getString("id"), result.getString("sender_id"),
+                                        result.getString("receiver_id"), result.getString("message"),
                                         result.getTimestamp("created_at").toLocalDateTime()),
-                                new User(result.getInt("sender_id"), result.getString("sender_username"),
+                                new User(result.getString("sender_id"), result.getString("sender_username"),
                                         result.getString("sender_password"), result.getInt("sender_is_vendor")),
-                                new User(result.getInt("receiver_id"), result.getString("receiver_username"),
+                                new User(result.getString("receiver_id"), result.getString("receiver_username"),
                                         result.getString("receiver_password"), result.getInt("receiver_is_vendor"))));
             }
             return reviews;
