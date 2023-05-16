@@ -1,12 +1,12 @@
-package insecure.model;
+package secure.model;
 
 import java.sql.*;
 import java.time.LocalDateTime;
-
-import insecure.Database;
 import java.io.Serializable;
 
 import java.util.*;
+
+import secure.Database;
 
 public class Order implements Serializable {
     public record OrderProductUser(Order order, Product product, User user) {

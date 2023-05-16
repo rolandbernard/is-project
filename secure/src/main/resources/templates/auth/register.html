@@ -1,0 +1,48 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head}" th:with="title='Login'">
+</head>
+
+<body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
+    <header th:replace="~{fragments/layout :: header}"></header>
+    <div>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-4">
+                    <h1 class="text-center mb-3">Register</h1>
+                    <div th:if="${error}">
+                        <p th:text="${error}" class="alert alert-danger text-center">
+                        </p>
+                    </div>
+                    <form action="/auth/register" method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" id="username" th:value="${username}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" id="password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password-repeat" class="form-label">Password (repeat)</label>
+                            <input type="password" name="password-repeat" class="form-control" id="password-repeat">
+                        </div>
+                        <div class="mb-3">
+                            <label for="vendor" class="form-label">Vendor</label>
+                            <input type="checkbox" name="vendor" class="form-check-input" id="vendor">
+                        </div>
+                        <input type="hidden" name="origin" th:value="${origin}">
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn d-block btn-primary">Register</button>
+                            <a href="/auth/login" class="btn d-block">Already have an account?</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+
+</html>

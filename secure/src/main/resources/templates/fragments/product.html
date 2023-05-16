@@ -1,0 +1,13 @@
+<body>
+    <div th:fragment="product-card">
+        <a class="card mb-3 text-decoration-none" th:href="'/product/' + ${product.id}">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <span th:utext="${product.name}"></span>#<span th:text="${product.id}"></span>
+                </h2>
+                <div class="card-subtitle mb-2 text-body-secondary" th:text="${#numbers.formatDecimal(product.price / 100, 1, 2)} +  ' €'">Card subtitle
+                </div>
+            </div>
+        </a>
+    </div>
+</body>

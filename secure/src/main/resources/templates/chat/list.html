@@ -1,0 +1,23 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(title='All chats')}">
+</head>
+
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
+    <header th:replace="~{fragments/layout :: header}"></header>
+    <div class="container">
+        <h1>
+            Chats
+        </h1>
+        <div th:each="message : ${messages}">
+            <div
+                th:replace="~{fragments/chat :: chat-item(message=${message.message.message}, sender=${message.sender}, user=${message.receiver.id == user.id ? message.sender : message.receiver })}">
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+
+</html>

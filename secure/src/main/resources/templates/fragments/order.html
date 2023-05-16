@@ -1,0 +1,21 @@
+<body>
+    <div th:fragment="order-item">
+        <tr>
+            <td>
+                #<span th:utext="${order.order.id}"></span>
+            </td>
+            <td>
+                <span th:utext="${order.product.name}"></span>#<span th:utext="${order.product.id}"></span>
+            </td>
+            <td>
+                <span th:utext="${order.user.username}" th:if="${user.isVendor}"></span>
+                <a th:href="@{/chat/{id}(id=${order.user.id})}" th:if="${!user.isVendor}"
+                    th:utext="${order.user.username}">
+                </a>
+            </td>
+            <td>
+                <span th:text="${#temporals.format(order.order.createdAt, 'dd.MM.yyyy, HH:mm')}"></span>
+            </td>
+        </tr>
+    </div>
+</body>

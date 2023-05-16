@@ -1,0 +1,29 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head(title=${title})}">
+</head>
+
+<body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
+    <header th:replace="~{fragments/layout :: header}"></header>
+    <div>
+        <div class="container">
+            <h1 th:text="${title}">
+            </h1>
+            <table class="table table-bordered">
+                <tr>
+                    <th>Order ID</th>
+                    <th>Product</th>
+                    <th th:text="${user.isVendor ? 'Customer' : 'Vendor'}"></th>
+                    <th>Date</th>
+                </tr>
+                <div th:each="order : ${orders}">
+                    <tr th:replace="~{fragments/order :: order-item(order=${order})}"></tr>
+                </div>
+            </table>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+
+</html>

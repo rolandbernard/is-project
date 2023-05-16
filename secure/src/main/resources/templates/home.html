@@ -1,0 +1,17 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head}" th:with="title='Home'">
+</head>
+
+<body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
+    <header th:replace="~{fragments/layout :: header}"></header>
+    <div>
+        <div class="container">
+            <h1>Home</h1>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+
+</html>

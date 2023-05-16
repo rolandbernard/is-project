@@ -1,11 +1,11 @@
-package insecure.model;
+package secure.model;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-
-import insecure.Database;
 import java.util.ArrayList;
 import java.util.List;
+
+import secure.Database;
 
 public class Product implements Serializable {
     public record ProductVendor(Product product, User vendor) {
