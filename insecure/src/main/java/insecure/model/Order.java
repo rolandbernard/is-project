@@ -59,7 +59,7 @@ public class Order implements Serializable {
                                 new Order(result.getInt("id"), result.getInt("product_id"), result.getInt("user_id"),
                                         result.getTimestamp("created_at").toLocalDateTime()),
                                 new Product(result.getInt("product_id"), result.getString("name"),
-                                        result.getInt("user_id"), result.getInt("user_id")),
+                                        result.getInt("price"), result.getInt("user_id")),
                                 new User(result.getInt("product_user_id"), result.getString("username"),
                                         result.getString("password"),
                                         result.getInt("is_vendor"))));
@@ -74,7 +74,7 @@ public class Order implements Serializable {
             var result = statement.executeQuery(
                     "SELECT `order`.id, product_id, `order`.user_id, `order`.created_at, name, price, username, password, is_vendor "
                             + "FROM `order` JOIN product ON (product_id = product.id) "
-                            + "JOIN u ser ON (`order`.user_id = user.id) WHERE `product`.user_id = "
+                            + "JOIN user ON (`order`.user_id = user.id) WHERE `product`.user_id = "
                             + userId + " ORDER BY `order`.created_at DESC");
             var orders = new ArrayList<OrderProductUser>();
             while (result.next()) {
@@ -82,8 +82,8 @@ public class Order implements Serializable {
                         new OrderProductUser(
                                 new Order(result.getInt("id"), result.getInt("product_id"), result.getInt("user_id"),
                                         result.getTimestamp("created_at").toLocalDateTime()),
-                                new Product(result.getIpriceduct_id"), result.getString("name"),
-                                        result.getInt("user_id"), result.getInt("user_id")),
+                                new Product(result.getInt("product_id"), result.getString("name"),
+                                        result.getInt("price"), result.getInt("user_id")),
                                 new User(result.getInt("user_id"), result.getString("username"),
                                         result.getString("password"),
                                         result.getInt("is_vendor"))));
