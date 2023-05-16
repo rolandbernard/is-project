@@ -28,6 +28,10 @@
                             <label for="password-repeat" class="form-label">Password (repeat)</label>
                             <input type="password" name="password-repeat" class="form-control" id="password-repeat">
                         </div>
+                        <div class="mb-3">
+                            <label for="vendor" class="form-label">Vendor</label>
+                            <input type="checkbox" name="vendor" class="form-check-input" id="vendor">
+                        </div>
                         <input type="hidden" name="origin" th:value="${origin}">
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn d-block btn-primary">Register</button>

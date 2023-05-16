@@ -47,13 +47,13 @@ public class Product implements Serializable {
         var connection = db.getConnection();
         try (var statement = connection.createStatement()) {
             var results = statement.executeQuery(
-                    "SELECT product.id as product_id, name, price, user_id, username, password "
+                    "SELECT product.id as product_id, name, price, user_id, username, password, is_vendor "
                             + "FROM product JOIN user ON (user_id = user.id) WHERE product.id = " + id);
             if (results.next()) {
                 return new ProductVendor(new Product(results.getInt("product_id"), results.getString("name"),
                         results.getInt("price"), results.getInt("user_id")),
                         new User(results.getInt("user_id"), results.getString("username"),
-                                results.getString("password")));
+                                results.getString("password"), results.getInt("is_vendor")));
             } else {
                 return null;
             }
@@ -67,7 +67,7 @@ public class Product implements Serializable {
         var connection = db.getConnection();
         try (var statement = connection.createStatement()) {
             var results = statement.executeQuery(
-                    "SELECT id, name, price, user_id FROM product WHERE user_id = " + userId);
+                    "SELECT id, name, price, user_id FROM product WHERE user_id = " + userId + " ORDER BY created_at DESC");
             var products = new ArrayList<Product>();
             while (results.next()) {
                 products.add(new Product(results.getInt("id"), results.getString("name"), results.getInt("price"),
@@ -84,7 +84,7 @@ public class Product implements Serializable {
         var connection = db.getConnection();
         try (var statement = connection.createStatement()) {
             var results = statement.executeQuery(
-                    "SELECT id, name, price, user_id FROM product WHERE name LIKE '%" + keyword + "%'");
+                    "SELECT id, name, price, user_id FROM product WHERE name LIKE '%" + keyword + "%' ORDER BY created_at DESC");
             var products = new ArrayList<Product>();
             while (results.next()) {
                 products.add(new Product(results.getInt("id"), results.getString("name"), results.getInt("price"),
@@ -101,7 +101,7 @@ public class Product implements Serializable {
         var connection = db.getConnection();
         try (var statement = connection.createStatement()) {
             var results = statement.executeQuery(
-                    "SELECT id, name, price, user_id FROM product");
+                    "SELECT id, name, price, user_id FROM product ORDER BY created_at DESC");
             var products = new ArrayList<Product>();
             while (results.next()) {
                 products.add(new Product(results.getInt("id"), results.getString("name"), results.getInt("price"),

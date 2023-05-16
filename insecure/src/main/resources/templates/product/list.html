@@ -8,9 +8,9 @@
     <header th:replace="~{fragments/layout :: header}"></header>
     <div class="container">
         <div class="d-flex justify-content-between mb-3 align-items-center">
-            <h1 th:text="${title}">
+            <h1 th:utext="${title}">
             </h1>
-            <div>
+            <div th:if="${user.isVendor}">
                 <a href="/product/create" class="btn btn-primary ml-2 d-inline-block">Create a new product</a>
             </div>
         </div>
@@ -18,7 +18,7 @@
             <div class="col-md-6">
                 <form action="/product/search" method="GET">
                     <div class="input-group mb-3">
-                        <input type="search" class="form-control" placeholder="Search" name="keyword" value="">
+                        <input type="search" class="form-control" placeholder="Search" name="keyword" th:value="${keyword}">
                         <div class="input-group-append ml-2">
                             <button class="btn btn-outline-secondary" type="submit">Search</button>
                         </div>

@@ -9,13 +9,19 @@
     <div class="container d-flex flex-column" style="gap: 10px">
         <h1 th:utext="${product.product.name}">
         </h1>
-        <a th:href="'/chat/' + ${product.vendor.id}" th:utext="${product.vendor.username}"></a>
-        <div class="ms-2" th:text="${#numbers.formatDecimal(product.product.price / 100, 1, 2)} +  ' €'"></div>
-        <form method="post" th:action="'/order/create/' + ${product.product.id}">
+        <a 
+        th:href="'/chat/' + ${product.vendor.id}" 
+        th:utext="${product.vendor.username}"
+        th:if="${!user.isVendor}"></a>
+        <div
+        th:utext="${product.vendor.username}"
+        th:if="${user.isVendor}"></div>
+        <div th:text="${#numbers.formatDecimal(product.product.price / 100, 1, 2)} +  ' €'"></div>
+        <form method="post" th:action="'/order/create/' + ${product.product.id}" th:if="${!user.isVendor}">
             <button class="btn btn-primary" type="submit"
                 onclick="return confirm('Are you sure you want to buy this product?')">Buy</button>
         </form>
-        <div th:if="${!isOwner && !hasReviewed}">
+        <div th:if="${!user.isVendor && !hasReviewed}">
             <form method="post" class="d-flex flex-column" th:action="'/product/' + ${product.product.id} + '/review'"
                 style="gap: 10px">
                 <textarea class="form-control" name="comment" rows="3" placeholder="Write a review"></textarea>
@@ -48,7 +54,8 @@
                     </p>
                 </div>
             </div>
-            <form method="post" class="ms-5 mt-3"
+
+            <form method="post" class="ms-5 mt-3" th:if="${isOwner || review.user.id == user.id}"
                 th:action="'/product/' + ${product.product.id} + '/review/'+ ${review.review.id}+'/response'">
                 <textarea class="form-control mb-2" name="comment" rows="3" placeholder="Write a response"></textarea>
                 <button class="btn btn-primary" type="submit">Submit</button>

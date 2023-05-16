@@ -53,12 +53,13 @@ public class Message {
                     "SELECT (CASE WHEN sender_id = " + userId + " THEN receiver_id ELSE sender_id END) AS other_id, "
                             + "message.id, sender_id, receiver_id, message, MAX(message.created_at) AS created_at, "
                             + "sender.username as sender_username, sender.password AS sender_password, "
-                            + "receiver.username AS receiver_username, receiver.password AS receiver_password "
+                            + "receiver.username AS receiver_username, receiver.password AS receiver_password, "
+                            + "sender.is_vendor AS sender_is_vendor, receiver.is_vendor AS receiver_is_vendor "
                             + "FROM message JOIN user AS sender ON (message.sender_id = sender.id) "
                             + "JOIN user AS receiver ON (message.receiver_id = receiver.id) "
                             + "WHERE (sender_id = " + userId + " OR receiver_id = " + userId + ") "
                             + " GROUP BY other_id"
-                            + " ORDER BY message.created_at");
+                            + " ORDER BY message.created_at DESC");
             var reviews = new ArrayList<MessageSenderReceiver>();
             while (result.next()) {
                 reviews.add(
@@ -67,9 +68,9 @@ public class Message {
                                         result.getInt("receiver_id"), result.getString("message"),
                                         result.getTimestamp("created_at").toLocalDateTime()),
                                 new User(result.getInt("sender_id"), result.getString("sender_username"),
-                                        result.getString("sender_password")),
+                                        result.getString("sender_password"), result.getInt("sender_is_vendor")),
                                 new User(result.getInt("receiver_id"), result.getString("receiver_username"),
-                                        result.getString("receiver_password"))));
+                                        result.getString("receiver_password"), result.getInt("receiver_is_vendor"))));
             }
             return reviews;
         }
@@ -81,7 +82,8 @@ public class Message {
             var result = statement.executeQuery(
                     "SELECT message.id, sender_id, receiver_id, message, message.created_at, "
                             + "sender.username as sender_username, sender.password AS sender_password, "
-                            + "receiver.username AS receiver_username, receiver.password AS receiver_password "
+                            + "receiver.username AS receiver_username, receiver.password AS receiver_password, "
+                            + "sender.is_vendor AS sender_is_vendor, receiver.is_vendor AS receiver_is_vendor "
                             + "FROM message JOIN user AS sender ON (message.sender_id = sender.id) "
                             + "JOIN user AS receiver ON (message.receiver_id = receiver.id) "
                             + "WHERE (sender_id = " + userId + " AND receiver_id = " + otherId + ") "
@@ -95,9 +97,9 @@ public class Message {
                                         result.getInt("receiver_id"), result.getString("message"),
                                         result.getTimestamp("created_at").toLocalDateTime()),
                                 new User(result.getInt("sender_id"), result.getString("sender_username"),
-                                        result.getString("sender_password")),
+                                        result.getString("sender_password"), result.getInt("sender_is_vendor")),
                                 new User(result.getInt("receiver_id"), result.getString("receiver_username"),
-                                        result.getString("receiver_password"))));
+                                        result.getString("receiver_password"), result.getInt("receiver_is_vendor"))));
             }
             return reviews;
         }

@@ -23,24 +23,13 @@ public class Orders {
         }
     }
 
-    @GetMapping("/by-me")
+    @GetMapping()
     public String getList(Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
-            model.addAttribute("orders", Order.getByUser(db, user.id));
+            model.addAttribute("orders", user.isVendor ? Order.getForUser(db, user.id) : Order.getByUser(db, user.id));
             model.addAttribute("user", user);
-            model.addAttribute("title", "My Orders");
-            return "order/list";
-        }
-    }
-
-    @GetMapping("/for-me")
-    public String getForMe(Model model, HttpServletRequest request) throws Exception {
-        try (var db = new Database()) {
-            User user = (User) request.getAttribute("user");
-            model.addAttribute("user", user);
-            model.addAttribute("orders", Order.getForUser(db, user.id));
-            model.addAttribute("title", "Orders for Me");
+            model.addAttribute("title", user.isVendor ? "Orders for me" : "My Orders");
             return "order/list";
         }
     }

@@ -54,7 +54,8 @@ public class Response {
                     "SELECT review.id AS review_id, review.user_id AS review_user_id, product_id, rating, review.comment AS review_comment, "
                             + "review.created_at AS review_created_at, review.user_id AS review_user_id, user.username AS user_username, user.password AS user_password, "
                             + "response.id AS response_id, response.user_id AS response_user_id, response.comment AS response_comment, "
-                            + "response.created_at AS response_created_at, u2.username AS u2_username, u2.password AS u2_password "
+                            + "response.created_at AS response_created_at, u2.username AS u2_username, u2.password AS u2_password, "
+                            + "user.is_vendor AS user_is_vendor, u2.is_vendor AS u2_is_vendor "
                             + "FROM review JOIN user ON (review.user_id = user.id) "
                             + "LEFT JOIN response ON (review.id = response.review_id) LEFT JOIN user AS u2 ON (response.user_id = u2.id) "
                             + "WHERE product_id = " + productId
@@ -68,7 +69,7 @@ public class Response {
                                     result.getInt("rating"), result.getString("review_comment"),
                                     result.getTimestamp("review_created_at").toLocalDateTime()),
                             new User(result.getInt("review_user_id"), result.getString("user_username"),
-                                    result.getString("user_password")),
+                                    result.getString("user_password"), result.getInt("user_is_vendor")),
                             new ArrayList<>()));
                 }
                 if (result.getString("response_comment") != null) {
@@ -78,7 +79,7 @@ public class Response {
                                             result.getInt("response_user_id"), result.getString("response_comment"),
                                             result.getTimestamp("response_created_at").toLocalDateTime()),
                                     new User(result.getInt("response_user_id"), result.getString("u2_username"),
-                                            result.getString("u2_password"))));
+                                            result.getString("u2_password"), result.getInt("u2_is_vendor"))));
                 }
             }
             return reviews;

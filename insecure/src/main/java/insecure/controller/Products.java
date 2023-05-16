@@ -41,6 +41,7 @@ public class Products {
             var products = Product.search(db, keyword);
             model.addAttribute("products", products);
             model.addAttribute("user", user);
+            model.addAttribute("keyword", keyword);
             model.addAttribute("title", "Search results for \"" + keyword + "\"");
             return "product/list";
         }
@@ -111,6 +112,7 @@ public class Products {
             model.addAttribute("products", products);
             model.addAttribute("user", user);
             model.addAttribute("title", "All products");
+            model.addAttribute("keyword", "");
             return "product/list";
         }
     }

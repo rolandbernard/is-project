@@ -64,7 +64,9 @@ public class Auth {
     @PostMapping("/register")
     public String postRegister(@RequestParam(value = "username") String username,
             @RequestParam(value = "password") String password,
-            @RequestParam(value = "password-repeat") String passwordRepeat, Model model, HttpServletResponse response)
+            @RequestParam(value = "password-repeat") String passwordRepeat,
+            @RequestParam(defaultValue = "false") boolean vendor,
+            Model model, HttpServletResponse response)
             throws Exception {
         model.addAttribute("username", username);
         if (!password.equals(passwordRepeat)) {
@@ -72,7 +74,7 @@ public class Auth {
             return "auth/register";
         }
         try (var db = new Database()) {
-            var user = User.create(db, username, password);
+            var user = User.create(db, username, password, vendor);
             if (user == null) {
                 model.addAttribute("error", "Username already exists");
                 return "auth/register";

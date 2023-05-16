@@ -51,10 +51,10 @@ public class Review {
         var connection = db.getConnection();
         try (var statement = connection.createStatement()) {
             var result = statement.executeQuery(
-                    "SELECT review.id, user_id, product_id, rating, comment, review.created_at, username, password "
+                    "SELECT review.id, user_id, product_id, rating, comment, review.created_at, username, password, is_vendor "
                             + "FROM review JOIN user ON (user_id = user.id) "
                             + "WHERE product_id = " + productId
-                            + " ORDER BY review.created_at");
+                            + " ORDER BY review.created_at DESC");
             var reviews = new ArrayList<ReviewUser>();
             while (result.next()) {
                 reviews.add(
@@ -63,7 +63,8 @@ public class Review {
                                         result.getInt("rating"), result.getString("comment"),
                                         result.getTimestamp("created_at").toLocalDateTime()),
                                 new User(result.getInt("user_id"), result.getString("username"),
-                                        result.getString("password"))));
+                                        result.getString("password"),
+                                        result.getInt("is_vendor"))));
             }
             return reviews;
         }

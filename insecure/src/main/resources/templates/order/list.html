@@ -14,7 +14,7 @@
                 <tr>
                     <th>Order ID</th>
                     <th>Product</th>
-                    <th>Customer</th>
+                    <th th:text="${user.isVendor ? 'Customer' : 'Vendor'}"></th>
                     <th>Date</th>
                 </tr>
                 <div th:each="order : ${orders}">

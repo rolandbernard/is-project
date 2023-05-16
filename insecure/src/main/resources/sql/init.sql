@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     `id` integer PRIMARY KEY AUTOINCREMENT,
     `username` varchar(255) NOT NULL UNIQUE,
     `password` varchar(255) NOT NULL,
+    `is_vendor` integer NOT NULL DEFAULT 0,
     `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS `product` (

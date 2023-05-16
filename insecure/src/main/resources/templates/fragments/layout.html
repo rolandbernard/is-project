@@ -22,11 +22,11 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-end align-items-center" id="navbarNav">
-                <ul class="navbar-nav align-items-center gap-3">
-                    <li class="nav-item active">
+                <ul class="navbar-nav align-items-center gap-3" th:if="${user != null}">
+                    <li class="nav-item">
                         <a class="nav-link" href="/">Home</a>
                     </li>
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown" th:if="${user.isVendor}">
                         <div type="button" class="dropdown-toggle nav-link " data-bs-toggle="dropdown"
                             data-bs-display="static" aria-expanded="false">
                             Products
@@ -38,28 +38,20 @@
                             <li><a href="/product/my" class="dropdown-item" type="button">My products</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item dropdown">
-                        <div type="button" class="dropdown-toggle nav-link dropdown-menu-end " data-bs-toggle="dropdown"
-                            data-bs-display="static" aria-expanded="false">
-                            Orders
-                        </div>
-                        <ul class="dropdown-menu">
-                            <li><a href="/order/by-me" class="dropdown-item" type="button">Orders created by me</a></li>
-                            <li>
-                                <a href="/order/for-me" class="dropdown-item" type="button">Orders for my products</a>
-                            </li>
-                        </ul>
+                    <li class="nav-item" th:if="${!user.isVendor}">
+                        <a class="nav-link" href="/product/all">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/order">Orders</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/chat">Chat</a>
                     </li>
-                    <li class="nav-item" th:if="${user} == null">
-                        <a class="btn btn-primary" href="/auth/login">Login</a>
-                    </li>
-                    <li class="nav-item" th:if="${user} != null">
+                    <li class="nav-item">
                         <a class="btn btn-primary" href="/auth/logout">Logout</a>
                     </li>
                 </ul>
+                <a class="btn btn-primary" href="/auth/login" th:if="${user == null}">Login</a>
             </div>
         </nav>
     </header>
