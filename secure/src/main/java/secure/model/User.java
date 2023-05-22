@@ -23,7 +23,7 @@ public class User {
         try (var statement = connection.prepareStatement(sql)) {
             var uuid = Utils.newUuid();
             var salt = Random.instance().nextBytesBase64(64);
-            var passwordHash = Utils.hash(password, salt);
+            var passwordHash = Utils.passwordHash(password, salt);
             statement.setString(1, uuid);
             statement.setString(2, username);
             statement.setString(3, passwordHash);
@@ -47,7 +47,7 @@ public class User {
             if (results.next()) {
 
                 var salt = results.getString("salt");
-                var hashedPassword = Utils.hash(password, salt);
+                var hashedPassword = Utils.passwordHash(password, salt);
 
                 if (!results.getString("password").equals(hashedPassword)) {
                     Thread.sleep(1000);

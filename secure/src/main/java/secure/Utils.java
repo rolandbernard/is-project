@@ -1,9 +1,7 @@
 package secure;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.UUID;
+import java.security.*;
+import java.util.*;
 
 public class Utils {
     /**
@@ -68,11 +66,27 @@ public class Utils {
      *            The salt to hash with.
      * @return The hash for password and salt.
      */
-    public static String hash(String password, String salt) {
+    public static String passwordHash(String password, String salt) {
         try {
             var messageDigest = MessageDigest.getInstance("SHA-512");
             var hash = messageDigest.digest((password + salt).getBytes());
             return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw panic(e);
+        }
+    }
+
+    /**
+     * Compute the string for use in signature generation.
+     *
+     * @param message
+     *            The password to hash.
+     * @return The hash for the message.
+     */
+    public static byte[] signatureHash(String message) {
+        try {
+            var messageDigest = MessageDigest.getInstance("SHA-512");
+            return messageDigest.digest(message.getBytes());
         } catch (NoSuchAlgorithmException e) {
             throw panic(e);
         }

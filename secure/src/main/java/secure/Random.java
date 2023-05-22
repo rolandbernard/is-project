@@ -2,7 +2,7 @@ package secure;
 
 import java.util.Base64;
 
-public class Random {
+public class Random extends java.util.Random {
     private static final Random instance = new Random();
 
     private long state;
@@ -25,24 +25,15 @@ public class Random {
         return instance;
     }
 
-    public int nextInt() {
+    @Override
+    public long nextLong() {
         state = ((state * mul) + inc) % mod;
-        return (int) state;
-    }
-
-    public byte nextByte() {
-        return (byte) nextInt();
-    }
-
-    public byte[] nextBytes(int size) {
-        var bytes = new byte[size];
-        for (int i = 0; i < size; i++) {
-            bytes[i] = nextByte();
-        }
-        return bytes;
+        return state;
     }
 
     public String nextBytesBase64(int size) {
-        return Base64.getEncoder().encodeToString(nextBytes(size));
+        var bytes = new byte[size];
+        nextBytes(bytes);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 }
