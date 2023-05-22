@@ -61,7 +61,8 @@ public class Response {
             var result = statement.executeQuery();
             var reviews = new ArrayList<ReviewUserResponses>();
             while (result.next()) {
-                if (reviews.isEmpty() || reviews.get(reviews.size() - 1).review.id.equals(result.getString("review_id"))) {
+                if (reviews.isEmpty()
+                        || reviews.get(reviews.size() - 1).review.id.equals(result.getString("review_id"))) {
                     reviews.add(new ReviewUserResponses(
                             new Review(result.getString("review_id"), result.getString("review_user_id"),
                                     result.getString("product_id"),

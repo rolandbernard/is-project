@@ -76,7 +76,8 @@ public class Message {
         }
     }
 
-    public static List<MessageSenderReceiver> getBetween(Database db, String userId, String otherId) throws SQLException {
+    public static List<MessageSenderReceiver> getBetween(Database db, String userId, String otherId)
+            throws SQLException {
         var connection = db.getConnection();
         var sql = "SELECT message.id, sender_id, receiver_id, message, message.created_at, "
                 + "sender.username as sender_username, sender.password AS sender_password, "

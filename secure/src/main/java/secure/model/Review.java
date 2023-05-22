@@ -58,7 +58,8 @@ public class Review {
             while (result.next()) {
                 reviews.add(
                         new ReviewUser(
-                                new Review(result.getString("id"), result.getString("user_id"), result.getString("product_id"),
+                                new Review(result.getString("id"), result.getString("user_id"),
+                                        result.getString("product_id"),
                                         result.getInt("rating"), result.getString("comment"),
                                         result.getTimestamp("created_at").toLocalDateTime()),
                                 new User(result.getString("user_id"), result.getString("username"),

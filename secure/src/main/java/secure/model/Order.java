@@ -80,7 +80,8 @@ public class Order implements Serializable {
             while (result.next()) {
                 orders.add(
                         new OrderProductUser(
-                                new Order(result.getString("id"), result.getString("product_id"), result.getString("user_id"),
+                                new Order(result.getString("id"), result.getString("product_id"),
+                                        result.getString("user_id"),
                                         result.getTimestamp("created_at").toLocalDateTime()),
                                 new Product(result.getString("product_id"), result.getString("name"),
                                         result.getInt("price"), result.getString("user_id")),

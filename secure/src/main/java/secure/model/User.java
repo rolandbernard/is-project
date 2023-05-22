@@ -22,11 +22,13 @@ public class User {
         var sql = "INSERT INTO user (id, username, password, is_vendor, salt) VALUES (?, ?, ?, ?, ?)";
         try (var statement = connection.prepareStatement(sql)) {
             var uuid = Utils.newUuid();
+            var salt = Random.instance().nextBytesBase64(64);
+            var passwordHash = Utils.hash(password, salt);
             statement.setString(1, uuid);
             statement.setString(2, username);
-            statement.setString(3, password);
+            statement.setString(3, passwordHash);
             statement.setInt(4, isVendor ? 1 : 0);
-            statement.setString(5, "__PLACEHOLDER__");
+            statement.setString(5, salt);
             statement.execute();
             connection.commit();
             return new User(uuid, username, password, isVendor ? 1 : 0);
@@ -36,20 +38,29 @@ public class User {
         }
     }
 
-    public static User getUser(Database db, String username, String password) throws SQLException {
+    public static User getUser(Database db, String username, String password) throws Exception {
         var connection = db.getConnection();
-        var sql = "SELECT id, username, password, is_vendor FROM user WHERE username = ? AND password = ?";
+        var sql = "SELECT id, username, password, salt, is_vendor FROM user WHERE username = ?";
         try (var statement = connection.prepareStatement(sql)) {
             statement.setString(1, username);
-            statement.setString(2, password);
             var results = statement.executeQuery();
             if (results.next()) {
+
+                var salt = results.getString("salt");
+                var hashedPassword = Utils.hash(password, salt);
+
+                if (!results.getString("password").equals(hashedPassword)) {
+                    Thread.sleep(1000);
+                    return null;
+                }
+
                 return new User(results.getString("id"), results.getString("username"), results.getString("password"),
                         results.getInt("is_vendor"));
             } else {
+                Thread.sleep(1000);
                 return null;
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw e;
         } finally {
             connection.rollback();

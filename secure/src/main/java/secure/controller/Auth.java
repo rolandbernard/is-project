@@ -11,37 +11,29 @@ import secure.model.*;
 @Controller
 @RequestMapping("/auth")
 public class Auth {
-    private static void addAuthCookie(HttpServletResponse response, User user) {
-        Cookie cookie = new Cookie("user-id", user.id);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+    private static void setAuthSession(HttpServletRequest request, User user) {
+        var session = request.getSession();
+        session.setAttribute("user-id", user.id);
     }
 
     @GetMapping("/logout")
     public String getLogout(Model model, HttpServletRequest request, HttpServletResponse response) {
-        var cookies = request.getCookies();
-        for (var cookie : cookies) {
-            if (cookie.getName().equals("user-id")) {
-                cookie.setMaxAge(0);
-                cookie.setPath("/");
-                response.addCookie(cookie);
-                break;
-            }
-        }
+        var session = request.getSession();
+        session.removeAttribute("user-id");
         return "redirect:/auth/login";
     }
 
     @GetMapping("/login")
-    public String getLogin(Model model, HttpServletRequest request) {
+    public String getLogin(HttpSession session, Model model, HttpServletRequest request) {
         String origin = request.getParameter("origin");
         model.addAttribute("origin", origin);
         return "auth/login";
     }
 
     @PostMapping("/login")
-    public String postLogin(@RequestParam(value = "username") String username,
-            @RequestParam(value = "password") String password,
-            @RequestParam(value = "origin", required = false) String origin, Model model, HttpServletResponse response)
+    public String postLogin(HttpSession session, @RequestParam(value = "csrf-token") String csrfToken,
+            @RequestParam(value = "username") String username, @RequestParam(value = "password") String password,
+            @RequestParam(value = "origin", required = false) String origin, Model model, HttpServletRequest request)
             throws Exception {
         model.addAttribute("username", username);
         try (var db = new Database()) {
@@ -51,22 +43,21 @@ public class Auth {
                 model.addAttribute("origin", origin);
                 return "auth/login";
             }
-            addAuthCookie(response, user);
+            setAuthSession(request, user);
             return "redirect:" + (origin == null || origin.isBlank() ? "/" : origin);
         }
     }
 
     @GetMapping("/register")
-    public String getRegister(Model model, HttpServletRequest request) {
+    public String getRegister(Model model, HttpServletRequest request, HttpSession session) {
         return "auth/register";
     }
 
     @PostMapping("/register")
-    public String postRegister(@RequestParam(value = "username") String username,
+    public String postRegister(HttpSession session, @RequestParam(value = "username") String username,
             @RequestParam(value = "password") String password,
             @RequestParam(value = "password-repeat") String passwordRepeat,
-            @RequestParam(defaultValue = "false") boolean vendor,
-            Model model, HttpServletResponse response)
+            @RequestParam(defaultValue = "false") boolean vendor, Model model, HttpServletRequest request)
             throws Exception {
         model.addAttribute("username", username);
         if (!password.equals(passwordRepeat)) {
@@ -79,7 +70,7 @@ public class Auth {
                 model.addAttribute("error", "Username already exists");
                 return "auth/register";
             }
-            addAuthCookie(response, user);
+            setAuthSession(request, user);
             return "redirect:/";
         }
     }

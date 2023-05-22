@@ -33,6 +33,7 @@
                             <input type="checkbox" name="vendor" class="form-check-input" id="vendor">
                         </div>
                         <input type="hidden" name="origin" th:value="${origin}">
+                        <input type="hidden" name="csrf-token" th:value="${csrfToken}">
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn d-block btn-primary">Register</button>
                             <a href="/auth/login" class="btn d-block">Already have an account?</a>

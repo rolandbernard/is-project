@@ -18,7 +18,6 @@ public class Orders {
             User user = (User) request.getAttribute("user");
             Order order = Order.create(db, productId, user.id);
             model.addAttribute("order", order);
-            model.addAttribute("user", user);
             return "order/success";
         }
     }
@@ -28,7 +27,6 @@ public class Orders {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
             model.addAttribute("orders", user.isVendor ? Order.getForUser(db, user.id) : Order.getByUser(db, user.id));
-            model.addAttribute("user", user);
             model.addAttribute("title", user.isVendor ? "Orders for me" : "My Orders");
             return "order/list";
         }

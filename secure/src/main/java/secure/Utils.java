@@ -1,5 +1,8 @@
 package secure;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.UUID;
 
 public class Utils {
@@ -8,7 +11,7 @@ public class Utils {
      * guaranteed to never return.
      *
      * @param e
-     *          The exception that caused the panic.
+     *            The exception that caused the panic.
      * @return Return a runtime exception it is given, so that it can be thrown
      *         again to
      *         avoid control flow checks failing.
@@ -27,7 +30,7 @@ public class Utils {
      * @param number
      * @return The result of parsing.
      * @throws NumberFormatException
-     *                               If the number can not be parsed.
+     *             If the number can not be parsed.
      */
     public static int parseNumber(String number) throws NumberFormatException {
         var splitComma = number.split(",");
@@ -54,5 +57,24 @@ public class Utils {
      */
     public static String newUuid() {
         return UUID.randomUUID().toString();
+    }
+
+    /**
+     * Take the salt and password and combine it to a hash.
+     *
+     * @param password
+     *            The password to hash.
+     * @param salt
+     *            The salt to hash with.
+     * @return The hash for password and salt.
+     */
+    public static String hash(String password, String salt) {
+        try {
+            var messageDigest = MessageDigest.getInstance("SHA-512");
+            var hash = messageDigest.digest((password + salt).getBytes());
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw panic(e);
+        }
     }
 }

@@ -23,6 +23,7 @@
                         <label for="price" class="form-label">Price (€)</label>
                         <input type="text" name="price" class="form-control" id="price">
                     </div>
+                    <input type="hidden" name="csrf-token" th:value="${csrfToken}">
                     <div class="d-grid gap-2 mt-4">
                         <button type="submit" class="btn d-block btn-primary">Create</button>
                     </div>

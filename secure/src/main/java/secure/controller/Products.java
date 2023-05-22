@@ -4,7 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.*;
 import secure.Database;
 import secure.Utils;
 import secure.model.*;
@@ -30,17 +30,14 @@ public class Products {
                 model.addAttribute("error", "Price must be a number");
             }
         }
-        model.addAttribute("user", user);
         return "product/create";
     }
 
     @GetMapping("/search")
     public String getSearch(@RequestParam String keyword, Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
-            var user = (User) request.getAttribute("user");
             var products = Product.search(db, keyword);
             model.addAttribute("products", products);
-            model.addAttribute("user", user);
             model.addAttribute("keyword", keyword);
             model.addAttribute("title", "Search results for \"" + keyword + "\"");
             return "product/list";
@@ -48,7 +45,8 @@ public class Products {
     }
 
     @GetMapping("/{id}")
-    public String get(@PathVariable String id, Model model, HttpServletRequest request) throws Exception {
+    public String get(@PathVariable String id, Model model, HttpSession session, HttpServletRequest request)
+            throws Exception {
         try (var db = new Database()) {
             var productVendor = Product.getProduct(db, id);
             var user = (User) request.getAttribute("user");
@@ -61,7 +59,6 @@ public class Products {
             model.addAttribute("isOwner", product.userId == user.id);
             model.addAttribute("hasReviewed", reviews.stream().anyMatch(review -> review.review().userId == user.id));
             model.addAttribute("reviews", reviews);
-            model.addAttribute("user", user);
             return "product/info";
         }
     }
@@ -98,7 +95,6 @@ public class Products {
             User user = (User) request.getAttribute("user");
             var products = Product.getProducts(db, user.id);
             model.addAttribute("products", products);
-            model.addAttribute("user", user);
             model.addAttribute("title", "My products");
             return "product/list";
         }
@@ -107,10 +103,8 @@ public class Products {
     @GetMapping("/all")
     public String getAll(Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
-            var user = (User) request.getAttribute("user");
             var products = Product.getProducts(db);
             model.addAttribute("products", products);
-            model.addAttribute("user", user);
             model.addAttribute("title", "All products");
             model.addAttribute("keyword", "");
             return "product/list";

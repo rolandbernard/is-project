@@ -6,12 +6,6 @@ CREATE TABLE IF NOT EXISTS `user` (
     `salt` varchar(255) NOT NULL,
     `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE TABLE IF NOT EXISTS `session` (
-    `id` char(36) PRIMARY KEY,
-    `user_id` char(36) NOT NULL,
-    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (`user_id`) REFERENCES `user`(`id`)
-);
 CREATE TABLE IF NOT EXISTS `product` (
     `id` char(36) PRIMARY KEY,
     `name` varchar(255) NOT NULL,
