@@ -1,5 +1,7 @@
 package secure;
 
+import java.util.Arrays;
+
 public class Des {
     public static record DesSubKeys(long[] keys) {
     }
@@ -130,5 +132,54 @@ public class Des {
             state = (right << 32) | (left ^ feistel(right, keys.keys[15 - i]));
         }
         return bitPermutation(state, invertPermutationBox(IP));
+    }
+
+    public static long bytesToBlock(byte[] bytes, int offset, int pad) {
+        long block = 0;
+        for (int i = 0; i < 8; i++) {
+            block <<= 8;
+            if (offset + i < bytes.length) {
+                block |= bytes[offset + i];
+            } else {
+                block |= pad;
+            }
+        }
+        return block;
+    }
+
+    public static void blockToBytes(long block, byte[] bytes, int offset) {
+        for (int i = 0; i < 8; i++) {
+            if (offset + 7 - i < bytes.length) {
+                bytes[offset + 7 - i] = (byte) block;
+            }
+            block >>= 8;
+        }
+    }
+
+    public static byte[] encryptCbc(byte[] message, long key, long iv) {
+        var size = (message.length + 8) & ~0b111;
+        var keys = generateSubKeys(key);
+        byte[] cipher = new byte[size];
+        long block = iv;
+        for (int i = 0; i < size; i += 8) {
+            block ^= bytesToBlock(message, i, size - message.length);
+            block = encryptBlock(block, keys);
+            blockToBytes(block, cipher, i);
+        }
+        return cipher;
+    }
+
+    public static byte[] decryptCbc(byte[] message, long key, long iv) {
+        assert message.length % 8 == 0;
+        var keys = generateSubKeys(key);
+        byte[] plain = new byte[message.length];
+        long last = iv;
+        for (int i = 0; i < message.length; i += 8) {
+            long cipherBlock = bytesToBlock(message, i, 0);
+            long plainBlock = last ^ decryptBlock(cipherBlock, keys);
+            blockToBytes(plainBlock, plain, i);
+            last = cipherBlock;
+        }
+        return Arrays.copyOf(plain, message.length - plain[plain.length - 1]);
     }
 }
