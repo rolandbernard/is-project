@@ -61,7 +61,8 @@ public class Products {
             var hasBoughtProduct = Order.userBoughtProduct(db, user.id, id);
             model.addAttribute("product", productVendor);
             model.addAttribute("isOwner", product.userId.equals(user.id));
-            model.addAttribute("hasReviewed", reviews.stream().anyMatch(review -> review.review().userId.equals(user.id)));
+            model.addAttribute("hasReviewed",
+                    reviews.stream().anyMatch(review -> review.review().userId.equals(user.id)));
             model.addAttribute("hasBought", hasBoughtProduct);
             model.addAttribute("reviews", reviews);
             return "product/info";
@@ -104,7 +105,7 @@ public class Products {
                 throw new Exception("You must buy the product to review it");
             }
             var reviews = Response.getForProduct(db, product.id);
-            var hasReview = reviews.stream().anyMatch(review -> review.review().userId == user.id);
+            var hasReview = reviews.stream().anyMatch(review -> review.review().userId.equals(user.id));
             if (user.isVendor || (!user.isVendor && hasReview)) {
                 throw new Exception("Only customers can review once");
             }

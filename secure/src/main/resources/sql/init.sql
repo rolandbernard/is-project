@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `message` (
     `id` char(36) PRIMARY KEY,
     `sender_id` char(36) NOT NULL,
     `receiver_id` char(36) NOT NULL,
-    `message` text NOT NULL,
+    `message` blob NOT NULL,
     `created_at` integer NOT NULL,
     FOREIGN KEY (`sender_id`) REFERENCES `user`(`id`),
     FOREIGN KEY (`receiver_id`) REFERENCES `user`(`id`)

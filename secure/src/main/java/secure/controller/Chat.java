@@ -15,7 +15,7 @@ class Chat {
     public String chats(HttpServletRequest request, HttpSession session, Model model) throws Exception {
         try (Database db = new Database()) {
             User user = (User) request.getAttribute("user");
-            var messages = Message.getLastInvolving(db, user.id);
+            var messages = Message.getLastInvolving(db, user);
             model.addAttribute("messages", messages);
             return "chat/list";
         }
@@ -29,10 +29,10 @@ class Chat {
             if (user.isVendor == otherUser.isVendor) {
                 throw new Exception("Only Customer and Vendor can have a chat");
             }
-            if (user.id == otherId) {
+            if (user.id.equals(otherId)) {
                 throw new Exception("You cannot send message to yourself");
             }
-            var messages = Message.getBetween(db, user.id, otherId);
+            var messages = Message.getBetween(db, user, otherId);
             model.addAttribute("messages", messages);
             model.addAttribute("otherUser", User.getUser(db, otherId));
             return "chat/messages";
@@ -48,10 +48,10 @@ class Chat {
             if (user.isVendor == otherUser.isVendor) {
                 throw new Exception("Only Customer and Vendor can send messages");
             }
-            if (user.id == otherId) {
+            if (user.id.equals(otherId)) {
                 throw new Exception("You cannot send message to yourself");
             }
-            Message.create(db, user.id, otherId, message);
+            Message.create(db, user, otherId, message);
             return "redirect:/chat/" + otherId;
         }
     }
