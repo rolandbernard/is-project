@@ -66,8 +66,12 @@ public class Response {
                         || reviews.get(reviews.size() - 1).review.id.equals(result.getString("review_id"))) {
                     var publicKey = RsaKey.fromByteArray(result.getBytes("user_public_key"));
                     reviews.add(new ReviewUserResponses(
-                            new Review(result.getString("review_id"), result.getString("review_user_id"), result.getString("product_id"), result.getInt("rating"), result.getString("review_comment"), result.getTimestamp("review_created_at").toLocalDateTime()),
-                            new User(result.getString("review_user_id"), result.getString("user_username"), result.getInt("user_is_vendor"), publicKey),
+                            new Review(result.getString("review_id"), result.getString("review_user_id"),
+                                    result.getString("product_id"), result.getInt("rating"),
+                                    result.getString("review_comment"),
+                                    result.getTimestamp("review_created_at").toLocalDateTime()),
+                            new User(result.getString("review_user_id"), result.getString("user_username"),
+                                    result.getInt("user_is_vendor"), publicKey),
                             new ArrayList<>()));
                 }
                 if (result.getString("response_comment") != null) {

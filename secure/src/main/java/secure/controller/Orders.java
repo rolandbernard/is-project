@@ -12,7 +12,8 @@ import secure.model.*;
 @RequestMapping("/order")
 public class Orders {
     @PostMapping("/create/{id}")
-    public String postCreate(@PathVariable("id") String productId, Model model, HttpServletRequest request) throws Exception {
+    public String postCreate(@PathVariable("id") String productId, Model model, HttpServletRequest request)
+            throws Exception {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
             Order order = Order.create(db, productId, user);
