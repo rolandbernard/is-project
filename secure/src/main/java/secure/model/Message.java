@@ -18,26 +18,28 @@ public class Message {
     public final String message;
     public final LocalDateTime createdAt;
 
-    public Message(String id, String senderId, String receiverId, String message, LocalDateTime createAt) {
+    public Message(String id, String senderId, String receiverId, String message, long createAt) {
         this.id = id;
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.message = message;
-        this.createdAt = createAt;
+        this.createdAt = Utils.toLocalDateTime(createAt);
     }
 
     public static Message create(Database db, String senderId, String receiverId, String message) throws SQLException {
         var connection = db.getConnection();
-        var sql = "INSERT INTO message (id, sender_id, receiver_id, message) VALUES (?, ?, ?, ?)";
+        var sql = "INSERT INTO message (id, sender_id, receiver_id, message, created_at) VALUES (?, ?, ?, ?, ?)";
         try (var statement = connection.prepareStatement(sql)) {
             var uuid = Utils.newUuid();
+            var timestamp = System.currentTimeMillis();
             statement.setString(1, uuid);
             statement.setString(2, senderId);
             statement.setString(3, receiverId);
             statement.setString(4, message);
+            statement.setLong(5, timestamp);
             statement.execute();
             connection.commit();
-            return new Message(uuid, senderId, receiverId, message, LocalDateTime.now());
+            return new Message(uuid, senderId, receiverId, message, timestamp);
         } catch (SQLException e) {
             connection.rollback();
             throw e;
@@ -67,7 +69,7 @@ public class Message {
                         new MessageSenderReceiver(
                                 new Message(result.getString("id"), result.getString("sender_id"),
                                         result.getString("receiver_id"), result.getString("message"),
-                                        result.getTimestamp("created_at").toLocalDateTime()),
+                                        result.getLong("created_at")),
                                 new User(result.getString("sender_id"), result.getString("sender_username"),
                                         result.getInt("sender_is_vendor"),
                                         RsaKey.fromByteArray(result.getBytes("sender_public_key"))),
@@ -103,7 +105,7 @@ public class Message {
                         new MessageSenderReceiver(
                                 new Message(result.getString("id"), result.getString("sender_id"),
                                         result.getString("receiver_id"), result.getString("message"),
-                                        result.getTimestamp("created_at").toLocalDateTime()),
+                                        result.getLong("created_at")),
                                 new User(result.getString("sender_id"), result.getString("sender_username"),
                                         result.getInt("sender_is_vendor"),
                                         RsaKey.fromByteArray(result.getBytes("sender_public_key"))),

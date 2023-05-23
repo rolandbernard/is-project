@@ -1,5 +1,6 @@
 package secure;
 
+import java.time.*;
 import java.util.*;
 
 public class Utils {
@@ -8,7 +9,7 @@ public class Utils {
      * guaranteed to never return.
      *
      * @param e
-     *            The exception that caused the panic.
+     *          The exception that caused the panic.
      * @return Return a runtime exception it is given, so that it can be thrown
      *         again to
      *         avoid control flow checks failing.
@@ -27,7 +28,7 @@ public class Utils {
      * @param number
      * @return The result of parsing.
      * @throws NumberFormatException
-     *             If the number can not be parsed.
+     *                               If the number can not be parsed.
      */
     public static int parseNumber(String number) throws NumberFormatException {
         var splitComma = number.split(",");
@@ -111,10 +112,15 @@ public class Utils {
 
     /**
      * @param bytes
-     *            The bytes to be encoded.
+     *              The bytes to be encoded.
      * @return The bytes encoded with base64
      */
     public static String base64encode(byte[] bytes) {
         return Base64.getUrlEncoder().encodeToString(bytes);
+    }
+
+    public static LocalDateTime toLocalDateTime(long timestamp) {
+        var currentZoneOffset = ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now());
+        return LocalDateTime.ofEpochSecond(timestamp / 1000, 0, currentZoneOffset);
     }
 }

@@ -26,13 +26,15 @@ public class Product implements Serializable {
 
     public static Product create(Database db, String name, int price, String userId) throws SQLException {
         var connection = db.getConnection();
-        var sql = "INSERT INTO product (id, name, price, user_id) VALUES (?, ?, ?, ?)";
+        var sql = "INSERT INTO product (id, name, price, user_id, created_at) VALUES (?, ?, ?, ?, ?)";
         try (var statement = connection.prepareStatement(sql)) {
             var uuid = Utils.newUuid();
+            var timeStamp = System.currentTimeMillis();
             statement.setString(1, uuid);
             statement.setString(2, name);
             statement.setInt(3, price);
             statement.setString(4, userId);
+            statement.setLong(5, timeStamp);
             statement.execute();
             connection.commit();
             return new Product(uuid, name, price, userId);

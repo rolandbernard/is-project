@@ -8,8 +8,8 @@ public class Rsa {
             int exponentLength = Byte.toUnsignedInt(bytes[0]) | (Byte.toUnsignedInt(bytes[1]) << 8);
             int modulusLength = Byte.toUnsignedInt(bytes[2]) | (Byte.toUnsignedInt(bytes[3]) << 8);
             return new RsaKey(
-                new BigInteger(bytes, 4, exponentLength),
-                new BigInteger(bytes, exponentLength + 4, modulusLength));
+                new BigInteger(1, bytes, 4, exponentLength),
+                new BigInteger(1, bytes, exponentLength + 4, modulusLength));
         }
 
         public byte[] toByteArray() {
@@ -33,7 +33,8 @@ public class Rsa {
     public static record RsaKeys(RsaKey priv, RsaKey pub) {
     }
 
-    public static BigInteger encrypt(BigInteger message, RsaKey key) {
+    public static BigInteger crypt(BigInteger message, RsaKey key) {
+        assert message.compareTo(key.n) < 0;
         return message.modPow(key.e, key.n);
     }
 
@@ -50,13 +51,13 @@ public class Rsa {
     }
 
     public static byte[] sign(String message, RsaKey key) {
-        var digest = new BigInteger(Hash.signatureHash(message));
-        return encrypt(digest, key).toByteArray();
+        var digest = new BigInteger(1, Hash.signatureHash(message));
+        return crypt(digest, key).toByteArray();
     }
 
     public static boolean verify(String message, byte[] signature, RsaKey key) {
-        var digest = new BigInteger(Hash.signatureHash(message));
-        var signed = encrypt(new BigInteger(signature), key);
+        var digest = new BigInteger(1, Hash.signatureHash(message));
+        var signed = crypt(new BigInteger(1, signature), key);
         return digest.equals(signed);
     }
 }

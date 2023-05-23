@@ -17,8 +17,11 @@
                 <span th:text="${#temporals.format(order.order.createdAt, 'dd.MM.yyyy, HH:mm')}"></span>
             </td>
             <td>
-                <span th:if="${order.isValid}">
-                    ✓
+                <span th:if="${order.order.isValid}" title="This order has been digitally signed">
+                    ✅
+                </span>
+                <span th:if="${!order.order.isValid}" title="This order has no valid signature">
+                    ❌
                 </span>
             </td>
         </tr>

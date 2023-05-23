@@ -58,11 +58,11 @@ public class Products {
             }
             var product = productVendor.product();
             var reviews = Response.getForProduct(db, product.id);
+            var hasBoughtProduct = Order.userBoughtProduct(db, user.id, id);
             model.addAttribute("product", productVendor);
             model.addAttribute("isOwner", product.userId == user.id);
             model.addAttribute("hasReviewed", reviews.stream().anyMatch(review -> review.review().userId == user.id));
-            model.addAttribute("hasBought", Order.getByUser(db, user.id).stream()
-                    .anyMatch(order -> order.order().productId.equals(id)));
+            model.addAttribute("hasBought", hasBoughtProduct);
             model.addAttribute("reviews", reviews);
             return "product/info";
         }
@@ -99,8 +99,7 @@ public class Products {
             if (product == null) {
                 throw new Exception("Product not found");
             }
-            var hasBoughtProduct = Order.getByUser(db, user.id).stream()
-                    .anyMatch(order -> order.order().productId.equals(id));
+            var hasBoughtProduct = Order.userBoughtProduct(db, user.id, id);
             if (!hasBoughtProduct) {
                 throw new Exception("You must buy the product to review it");
             }

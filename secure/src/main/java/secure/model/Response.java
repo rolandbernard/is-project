@@ -20,26 +20,28 @@ public class Response {
     public final String comment;
     public final LocalDateTime createdAt;
 
-    public Response(String id, String reviewId, String userId, String comment, LocalDateTime createdAt) {
+    public Response(String id, String reviewId, String userId, String comment, long createdAt) {
         this.id = id;
         this.reviewId = reviewId;
         this.userId = userId;
         this.comment = comment;
-        this.createdAt = createdAt;
+        this.createdAt = Utils.toLocalDateTime(createdAt);
     }
 
     public static Response create(Database db, String reviewId, String userId, String comment) throws SQLException {
         var connection = db.getConnection();
-        var sql = "INSERT INTO response (id, review_id, user_id, comment) VALUES (?, ?, ?, ?)";
+        var sql = "INSERT INTO response (id, review_id, user_id, comment, created_at) VALUES (?, ?, ?, ?, ?)";
         try (var statement = connection.prepareStatement(sql)) {
             var uuid = Utils.newUuid();
+            var timestamp = System.currentTimeMillis();
             statement.setString(1, uuid);
             statement.setString(2, reviewId);
             statement.setString(3, userId);
             statement.setString(4, comment);
+            statement.setLong(5, timestamp);
             statement.execute();
             connection.commit();
-            return new Response(uuid, reviewId, userId, comment, LocalDateTime.now());
+            return new Response(uuid, reviewId, userId, comment, timestamp);
         } catch (SQLException e) {
             connection.rollback();
             throw e;
@@ -69,7 +71,7 @@ public class Response {
                             new Review(result.getString("review_id"), result.getString("review_user_id"),
                                     result.getString("product_id"), result.getInt("rating"),
                                     result.getString("review_comment"),
-                                    result.getTimestamp("review_created_at").toLocalDateTime()),
+                                    result.getLong("review_created_at")),
                             new User(result.getString("review_user_id"), result.getString("user_username"),
                                     result.getInt("user_is_vendor"), publicKey),
                             new ArrayList<>()));
@@ -80,7 +82,7 @@ public class Response {
                             new ResponseUser(
                                     new Response(result.getString("response_id"), result.getString("product_id"),
                                             result.getString("response_user_id"), result.getString("response_comment"),
-                                            result.getTimestamp("response_created_at").toLocalDateTime()),
+                                            result.getLong("response_created_at")),
                                     new User(result.getString("response_user_id"), result.getString("u2_username"),
                                             result.getInt("u2_is_vendor"), responsePublicKey)));
                 }

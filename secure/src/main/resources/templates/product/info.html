@@ -9,20 +9,15 @@
     <div class="container d-flex flex-column" style="gap: 10px">
         <h1 th:text="${product.product.name}">
         </h1>
-        <a 
-        th:href="'/chat/' + ${product.vendor.id}" 
-        th:text="${product.vendor.username}"
-        th:if="${!user.isVendor}"></a>
-        <div
-        th:text="${product.vendor.username}"
-        th:if="${user.isVendor}"></div>
+        <a th:href="'/chat/' + ${product.vendor.id}" th:text="${product.vendor.username}" th:if="${!user.isVendor}"></a>
+        <div th:text="${product.vendor.username}" th:if="${user.isVendor}"></div>
         <div th:text="${#numbers.formatDecimal(product.product.price / 100, 1, 2)} +  ' €'"></div>
         <form method="post" th:action="'/order/create/' + ${product.product.id}" th:if="${!user.isVendor}">
             <input type="hidden" name="csrf-token" th:value="${csrfToken}">
             <button class="btn btn-primary" type="submit"
                 onclick="return confirm('Are you sure you want to buy this product?')">Buy</button>
         </form>
-        <div th:if="${!user.isVendor && !hasReviewed}">
+        <div th:if="${!user.isVendor && !hasReviewed && hasBought}">
             <form method="post" class="d-flex flex-column" th:action="'/product/' + ${product.product.id} + '/review'"
                 style="gap: 10px">
                 <textarea class="form-control" name="comment" rows="3" placeholder="Write a review"></textarea>
@@ -45,18 +40,19 @@
                     <div>
                         <span class="card-text" th:text="${review.review.rating}"></span> Stars
                     </div>
-                    <p class="card-text" th:text="${#temporals.format(review.review.createdAt, 'dd.MM.yyyy, HH:mm')}"></p>
+                    <p class="card-text" th:text="${#temporals.format(review.review.createdAt, 'dd.MM.yyyy, HH:mm')}">
+                    </p>
                 </div>
             </div>
             <div class="card ms-5" th:each="response : ${review.responses}">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${response.user.username}"></h5>
                     <h6 class="card-subtitle mb-2 text-body-secondary" th:text="${response.response.comment}"></h6>
-                    <p class="card-text" th:text="${#temporals.format(response.response.createdAt, 'dd.MM.yyyy, HH:mm')}">
+                    <p class="card-text"
+                        th:text="${#temporals.format(response.response.createdAt, 'dd.MM.yyyy, HH:mm')}">
                     </p>
                 </div>
             </div>
-
             <form method="post" class="ms-5 mt-3" th:if="${isOwner || review.user.id == user.id}"
                 th:action="'/product/' + ${product.product.id} + '/review/'+ ${review.review.id}+'/response'">
                 <input type="hidden" name="csrf-token" th:value="${csrfToken}">

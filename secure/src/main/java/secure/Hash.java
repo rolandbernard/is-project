@@ -7,11 +7,11 @@ public class Hash {
     private static byte[] hash(int cnt, byte[] block1, byte[] block2) {
         try {
             var messageDigest = MessageDigest.getInstance("SHA-512");
-            messageDigest.digest(new byte[] {
+            messageDigest.update(new byte[] {
                     (byte) cnt, (byte) (cnt >>> 8), (byte) (cnt >>> 16), (byte) (cnt >>> 24)
             });
-            messageDigest.digest(block1);
-            messageDigest.digest(block2);
+            messageDigest.update(block1);
+            messageDigest.update(block2);
             return messageDigest.digest();
         } catch (NoSuchAlgorithmException e) {
             throw Utils.panic(e);

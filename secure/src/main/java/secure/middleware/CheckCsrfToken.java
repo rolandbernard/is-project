@@ -17,9 +17,12 @@ public class CheckCsrfToken implements HandlerInterceptor {
             if (sessionToken == null || !sessionToken.equals(requestToken)) {
                 session.removeAttribute("user-id");
                 session.removeAttribute("csrf-token");
-                var origin = request.getRequestURI().strip();
-                response.sendRedirect(
-                        "/auth/login?origin=" + URLEncoder.encode(origin.isBlank() ? "/" : origin, "UTF-8"));
+                if (request.getMethod().equals("GET")) {
+                    var origin = request.getRequestURI().strip();
+                    response.sendRedirect("/auth/login?origin=" + URLEncoder.encode(origin.isBlank() ? "/" : origin, "UTF-8"));
+                } else {
+                    response.sendRedirect("/auth/login");
+                }
                 return false;
             }
         }

@@ -18,29 +18,31 @@ public class Review {
     public final String comment;
     public final LocalDateTime createdAt;
 
-    public Review(String id, String userId, String productId, int rating, String comment, LocalDateTime createdAt) {
+    public Review(String id, String userId, String productId, int rating, String comment, long createdAt) {
         this.id = id;
         this.userId = userId;
         this.productId = productId;
         this.rating = rating;
         this.comment = comment;
-        this.createdAt = createdAt;
+        this.createdAt = Utils.toLocalDateTime(createdAt);
     }
 
     public static Review create(Database db, String userId, String productId, int rating, String comment)
             throws SQLException {
         var connection = db.getConnection();
-        var sql = "INSERT INTO review (id, user_id, product_id, rating, comment) VALUES (?, ?, ?, ?, ?)";
+        var sql = "INSERT INTO review (id, user_id, product_id, rating, comment, created_at) VALUES (?, ?, ?, ?, ?, ?)";
         try (var statement = connection.prepareStatement(sql)) {
             var uuid = Utils.newUuid();
+            var timestamp = System.currentTimeMillis();
             statement.setString(1, uuid);
             statement.setString(2, userId);
             statement.setString(3, productId);
             statement.setInt(4, rating);
             statement.setString(5, comment);
+            statement.setLong(6, timestamp);
             statement.execute();
             connection.commit();
-            return new Review(uuid, userId, productId, rating, comment, LocalDateTime.now());
+            return new Review(uuid, userId, productId, rating, comment, timestamp);
         } catch (SQLException e) {
             connection.rollback();
             throw e;
@@ -63,7 +65,7 @@ public class Review {
                                 new Review(result.getString("id"), result.getString("user_id"),
                                         result.getString("product_id"), result.getInt("rating"),
                                         result.getString("comment"),
-                                        result.getTimestamp("created_at").toLocalDateTime()),
+                                        result.getLong("created_at")),
                                 new User(result.getString("user_id"), result.getString("username"),
                                         result.getInt("is_vendor"), publicKey)));
             }

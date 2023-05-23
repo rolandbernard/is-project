@@ -6,21 +6,21 @@ CREATE TABLE IF NOT EXISTS `user` (
     `salt` blob NOT NULL,
     `private_key` blob NOT NULL,
     `public_key` blob NOT NULL,
-    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+    `created_at` integer NOT NULL
 );
 CREATE TABLE IF NOT EXISTS `product` (
     `id` char(36) PRIMARY KEY,
     `name` varchar(255) NOT NULL,
     `price` integer NOT NULL,
     `user_id` char(36) NOT NULL,
-    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_at` integer NOT NULL,
     FOREIGN KEY (`user_id`) REFERENCES `user`(`id`)
 );
 CREATE TABLE IF NOT EXISTS `order` (
     `id` char(36) PRIMARY KEY,
     `user_id` integer NOT NULL,
     `product_id` char(36) NOT NULL,
-    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_at` integer NOT NULL,
     `signature` blob NOT NULL,
     FOREIGN KEY (`user_id`) REFERENCES `user`(`id`),
     FOREIGN KEY (`product_id`) REFERENCES `product`(`id`)
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `review` (
     `product_id` char(36) NOT NULL,
     `rating` char(36) NOT NULL,
     `comment` text NOT NULL,
-    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_at` integer NOT NULL,
     FOREIGN KEY (`user_id`) REFERENCES `user`(`id`),
     FOREIGN KEY (`product_id`) REFERENCES `product`(`id`),
     UNIQUE (`user_id`, `product_id`)
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `response` (
     `review_id` char(36) NOT NULL,
     `user_id` char(36) NOT NULL,
     `comment` text NOT NULL,
-    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_at` integer NOT NULL,
     FOREIGN KEY (`review_id`) REFERENCES `review`(`id`),
     FOREIGN KEY (`user_id`) REFERENCES `user`(`id`)
 );
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS `message` (
     `sender_id` char(36) NOT NULL,
     `receiver_id` char(36) NOT NULL,
     `message` text NOT NULL,
-    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_at` integer NOT NULL,
     FOREIGN KEY (`sender_id`) REFERENCES `user`(`id`),
     FOREIGN KEY (`receiver_id`) REFERENCES `user`(`id`)
 );

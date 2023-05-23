@@ -27,8 +27,8 @@ public class User {
 
     public static User create(Database db, String username, String password, boolean isVendor) throws SQLException {
         var connection = db.getConnection();
-        var sql = "INSERT INTO user (id, username, password, is_vendor, salt, public_key, private_key) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        var sql = "INSERT INTO user (id, username, password, is_vendor, salt, public_key, private_key, created_at) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (var statement = connection.prepareStatement(sql)) {
             var uuid = Utils.newUuid();
             var salt = Random.instance().nextBytes(64);
@@ -37,6 +37,7 @@ public class User {
             var desKey = Hash.keyDerivation(password, salt, "private key encryption", 16);
             var privateKey = Des.encryptCbc(keys.priv().toByteArray(), desKey);
             var passwordHash = Hash.keyDerivation(password, salt, "password hash", 32);
+            var timestamp = System.currentTimeMillis();
             statement.setString(1, uuid);
             statement.setString(2, username);
             statement.setBytes(3, passwordHash);
@@ -44,6 +45,7 @@ public class User {
             statement.setBytes(5, salt);
             statement.setBytes(6, publicKey);
             statement.setBytes(7, privateKey);
+            statement.setLong(8, timestamp);
             statement.execute();
             connection.commit();
             return new User(uuid, username, isVendor ? 1 : 0, keys.pub(), keys.priv());

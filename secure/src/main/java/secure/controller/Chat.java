@@ -29,6 +29,9 @@ class Chat {
             if (user.isVendor == otherUser.isVendor) {
                 throw new Exception("Only Customer and Vendor can have a chat");
             }
+            if(user.id == otherId){
+                throw new Exception("You cannot send message to yourself");
+            }
             var messages = Message.getBetween(db, user.id, otherId);
             model.addAttribute("messages", messages);
             model.addAttribute("otherUser", User.getUser(db, otherId));
@@ -44,6 +47,9 @@ class Chat {
             User otherUser = User.getUser(db, otherId);
             if (user.isVendor == otherUser.isVendor) {
                 throw new Exception("Only Customer and Vendor can send messages");
+            }
+            if(user.id == otherId){
+                throw new Exception("You cannot send message to yourself");
             }
             Message.create(db, user.id, otherId, message);
             return "redirect:/chat/" + otherId;
