@@ -76,7 +76,7 @@ public class Des {
     private static long bitPermutation(long value, int[] box) {
         long mixed = 0;
         for (int i : box) {
-            mixed |= (value >> i) & 1;
+            mixed |= (value >> (i - 1)) & 1;
             mixed <<= 1;
         }
         return mixed;
@@ -85,7 +85,7 @@ public class Des {
     private static int[] invertPermutationBox(int[] box) {
         var inv = new int[box.length];
         for (int i = 0; i < box.length; i++) {
-            inv[box[i]] = i;
+            inv[box[i] - 1] = i;
         }
         return inv;
     }
@@ -107,9 +107,9 @@ public class Des {
         var preSub = bitPermutation(block, E) ^ subkey;
         var postSub = 0;
         for (int i = 0; i < SUB.length; i++) {
-            var subInput = (preSub >>> 6 * i);
+            var subInput = (preSub >>> (6 * i)) & 0x3f;
             var subOut = SUB[i][(int) subInput];
-            postSub |= subOut << 4 * i;
+            postSub |= subOut << (4 * i);
         }
         return bitPermutation(postSub, P);
     }
@@ -139,7 +139,7 @@ public class Des {
         for (int i = 0; i < 8; i++) {
             block <<= 8;
             if (offset + i < bytes.length) {
-                block |= bytes[offset + i];
+                block |= Byte.toUnsignedLong(bytes[offset + i]);
             } else {
                 block |= pad;
             }

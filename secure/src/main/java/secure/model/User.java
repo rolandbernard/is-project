@@ -1,6 +1,7 @@
 package secure.model;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import secure.*;
 import secure.Rsa.*;
@@ -31,11 +32,11 @@ public class User {
         try (var statement = connection.prepareStatement(sql)) {
             var uuid = Utils.newUuid();
             var salt = Random.instance().nextBytes(64);
-            var keys = Rsa.generateKeys(4096);
+            var keys = Rsa.generateKeys(2048);
             var publicKey = keys.pub().toByteArray();
-            var desKey = Utils.keyDerivation(password, salt, "private key encryption", 16);
+            var desKey = Hash.keyDerivation(password, salt, "private key encryption", 16);
             var privateKey = Des.encryptCbc(keys.priv().toByteArray(), desKey);
-            var passwordHash = Utils.keyDerivation(password, salt, "password hash", 32);
+            var passwordHash = Hash.keyDerivation(password, salt, "password hash", 32);
             statement.setString(1, uuid);
             statement.setString(2, username);
             statement.setBytes(3, passwordHash);
@@ -60,13 +61,13 @@ public class User {
             var results = statement.executeQuery();
             if (results.next()) {
                 var salt = results.getBytes("salt");
-                var passwordHash = Utils.keyDerivation(password, salt, "password hash", 32);
-                if (!results.getBytes("password").equals(passwordHash)) {
+                var passwordHash = Hash.keyDerivation(password, salt, "password hash", 32);
+                if (!Arrays.equals(passwordHash, results.getBytes("password"))) {
                     Thread.sleep(1000);
                     return null;
                 }
                 var publicKey = RsaKey.fromByteArray(results.getBytes("public_key"));
-                var desKey = Utils.keyDerivation(password, salt, "private key encryption", 16);
+                var desKey = Hash.keyDerivation(password, salt, "private key encryption", 16);
                 var privKeyBytes = Des.decryptCbc(results.getBytes("private_key"), desKey);
                 var privateKey = RsaKey.fromByteArray(privKeyBytes);
                 return new User(results.getString("id"), results.getString("username"),

@@ -21,7 +21,7 @@ public class Auth {
     @GetMapping("/logout")
     public String getLogout(Model model, HttpServletRequest request, HttpServletResponse response) {
         var session = request.getSession();
-        session.removeAttribute("user-id");
+        session.removeAttribute("user");
         return "redirect:/auth/login";
     }
 

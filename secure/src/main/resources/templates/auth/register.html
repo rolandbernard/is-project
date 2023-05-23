@@ -10,7 +10,7 @@
             <div class="row justify-content-center">
                 <div class="col-4">
                     <h1 class="text-center mb-3">Register</h1>
-                    <div th:each="error : ${errors}" th:if="${errors && errors.length}">
+                    <div th:each="error : ${errors}" th:if="${errors != null && errors.size() > 0}">
                         <p class="alert alert-danger text-center" th:text="${error}"></p>
                     </div>
                     <form action="/auth/register" method="post">

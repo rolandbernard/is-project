@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `response` (
     `user_id` char(36) NOT NULL,
     `comment` text NOT NULL,
     `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (`review_id`) REFERENCES `review`(`id`)
+    FOREIGN KEY (`review_id`) REFERENCES `review`(`id`),
     FOREIGN KEY (`user_id`) REFERENCES `user`(`id`)
 );
 CREATE TABLE IF NOT EXISTS `chat` (
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `chat` (
     `sender_id` char(36) NOT NULL,
     `receiver_id` char(36) NOT NULL,
     `sender_key` text NOT NULL,
-    `receiver_key` text NOT NULL,
+    `receiver_key` text NOT NULL
 );
 CREATE TABLE IF NOT EXISTS `message` (
     `id` char(36) PRIMARY KEY,

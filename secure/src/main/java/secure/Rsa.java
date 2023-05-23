@@ -5,8 +5,8 @@ import java.math.BigInteger;
 public class Rsa {
     public static record RsaKey(BigInteger e, BigInteger n) {
         public static RsaKey fromByteArray(byte[] bytes) {
-            int exponentLength = bytes[0] | (bytes[1] << 8);
-            int modulusLength = bytes[2] | (bytes[3] << 8);
+            int exponentLength = Byte.toUnsignedInt(bytes[0]) | (Byte.toUnsignedInt(bytes[1]) << 8);
+            int modulusLength = Byte.toUnsignedInt(bytes[2]) | (Byte.toUnsignedInt(bytes[3]) << 8);
             return new RsaKey(
                 new BigInteger(bytes, 4, exponentLength),
                 new BigInteger(bytes, exponentLength + 4, modulusLength));
@@ -38,8 +38,8 @@ public class Rsa {
     }
 
     public static RsaKeys generateKeys(int bits) {
-        var p = BigInteger.probablePrime(bits, Random.instance());
-        var q = BigInteger.probablePrime(bits, Random.instance());
+        var p = new BigInteger(bits / 2, 128, Random.instance());
+        var q = new BigInteger(bits / 2, 128, Random.instance());
         var n = p.multiply(q);
         var phi = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
         var lamb = phi.divide(p.subtract(BigInteger.ONE).gcd(q.subtract(BigInteger.ONE)));
@@ -50,12 +50,12 @@ public class Rsa {
     }
 
     public static byte[] sign(String message, RsaKey key) {
-        var digest = new BigInteger(Utils.signatureHash(message));
+        var digest = new BigInteger(Hash.signatureHash(message));
         return encrypt(digest, key).toByteArray();
     }
 
     public static boolean verify(String message, byte[] signature, RsaKey key) {
-        var digest = new BigInteger(Utils.signatureHash(message));
+        var digest = new BigInteger(Hash.signatureHash(message));
         var signed = encrypt(new BigInteger(signature), key);
         return digest.equals(signed);
     }
