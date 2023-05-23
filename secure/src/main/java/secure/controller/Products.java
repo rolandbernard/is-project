@@ -60,8 +60,8 @@ public class Products {
             var reviews = Response.getForProduct(db, product.id);
             var hasBoughtProduct = Order.userBoughtProduct(db, user.id, id);
             model.addAttribute("product", productVendor);
-            model.addAttribute("isOwner", product.userId == user.id);
-            model.addAttribute("hasReviewed", reviews.stream().anyMatch(review -> review.review().userId == user.id));
+            model.addAttribute("isOwner", product.userId.equals(user.id));
+            model.addAttribute("hasReviewed", reviews.stream().anyMatch(review -> review.review().userId.equals(user.id)));
             model.addAttribute("hasBought", hasBoughtProduct);
             model.addAttribute("reviews", reviews);
             return "product/info";

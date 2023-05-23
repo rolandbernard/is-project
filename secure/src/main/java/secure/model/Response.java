@@ -52,7 +52,8 @@ public class Response {
     public static List<ReviewUserResponses> getForProduct(Database db, String productId) throws SQLException {
         var connection = db.getConnection();
         var sql = "SELECT review.id AS review_id, review.user_id AS review_user_id, product_id, rating, review.comment AS review_comment, "
-                + "review.created_at AS review_created_at, review.user_id AS review_user_id, user.username AS user_username, user.rsa_public_key AS user_rsa_public_key, user.dh_public_key AS user_dh_public_key, "
+                + "review.created_at AS review_created_at, review.user_id AS review_user_id, user.username AS user_username, "
+                + "user.rsa_public_key AS user_rsa_public_key, user.dh_public_key AS user_dh_public_key, "
                 + "response.id AS response_id, response.user_id AS response_user_id, response.comment AS response_comment, "
                 + "response.created_at AS response_created_at, u2.username AS u2_username, u2.rsa_public_key AS u2_rsa_public_key, u2.dh_public_key AS u2_dh_public_key, "
                 + "user.is_vendor AS user_is_vendor, u2.is_vendor AS u2_is_vendor "
@@ -66,7 +67,7 @@ public class Response {
             var reviews = new ArrayList<ReviewUserResponses>();
             while (result.next()) {
                 if (reviews.isEmpty()
-                        || reviews.get(reviews.size() - 1).review.id.equals(result.getString("review_id"))) {
+                        || !reviews.get(reviews.size() - 1).review.id.equals(result.getString("review_id"))) {
                     var rsaPublicKey = RsaKey.fromByteArray(result.getBytes("user_rsa_public_key"));
                     var dhPublicKey = DhKey.fromByteArray(result.getBytes("user_dh_public_key"));
                     reviews.add(new ReviewUserResponses(
