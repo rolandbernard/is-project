@@ -7,6 +7,7 @@ import java.util.List;
 
 import secure.*;
 import secure.Rsa.RsaKey;
+import secure.Dh.DhKey;
 
 public class Message {
     public record MessageSenderReceiver(Message message, User sender, User receiver) {
@@ -50,8 +51,9 @@ public class Message {
         var connection = db.getConnection();
         var sql = "SELECT (CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END) AS other_id, "
                 + "message.id, sender_id, receiver_id, message, MAX(message.created_at) AS created_at, "
-                + "sender.username as sender_username, sender.public_key AS sender_public_key, "
-                + "receiver.username AS receiver_username, receiver.public_key AS receiver_public_key, "
+                + "sender.username as sender_username, sender.rsa_public_key AS sender_rsa_public_key, "
+                + "receiver.username AS receiver_username, receiver.rsa_public_key AS receiver_rsa_public_key, "
+                + "receiver.dh_public_key AS receiver_dh_public_key, sender.dh_public_key AS sender_dh_public_key, "
                 + "sender.is_vendor AS sender_is_vendor, receiver.is_vendor AS receiver_is_vendor "
                 + "FROM message JOIN user AS sender ON (message.sender_id = sender.id) "
                 + "JOIN user AS receiver ON (message.receiver_id = receiver.id) "
@@ -72,10 +74,13 @@ public class Message {
                                         result.getLong("created_at")),
                                 new User(result.getString("sender_id"), result.getString("sender_username"),
                                         result.getInt("sender_is_vendor"),
-                                        RsaKey.fromByteArray(result.getBytes("sender_public_key"))),
+                                        RsaKey.fromByteArray(result.getBytes("sender_rsa_public_key")),
+                                        DhKey.fromByteArray(result.getBytes("sender_dh_public_key"))),
+
                                 new User(result.getString("receiver_id"), result.getString("receiver_username"),
                                         result.getInt("receiver_is_vendor"),
-                                        RsaKey.fromByteArray(result.getBytes("receiver_public_key")))));
+                                        RsaKey.fromByteArray(result.getBytes("receiver_rsa_public_key")),
+                                        DhKey.fromByteArray(result.getBytes("receiver_dh_public_key")))));
             }
             return reviews;
         }
@@ -85,8 +90,9 @@ public class Message {
             throws SQLException {
         var connection = db.getConnection();
         var sql = "SELECT message.id, sender_id, receiver_id, message, message.created_at, "
-                + "sender.username as sender_username, sender.public_key AS sender_public_key, "
-                + "receiver.username AS receiver_username, receiver.public_key AS receiver_public_key, "
+                + "sender.username as sender_username, sender.rsa_public_key AS sender_rsa_public_key, "
+                + "receiver.username AS receiver_username, receiver.rsa_public_key AS receiver_rsa_public_key, "
+                + "receiver.dh_public_key AS receiver_dh_public_key, sender.dh_public_key AS sender_dh_public_key, "
                 + "sender.is_vendor AS sender_is_vendor, receiver.is_vendor AS receiver_is_vendor "
                 + "FROM message JOIN user AS sender ON (message.sender_id = sender.id) "
                 + "JOIN user AS receiver ON (message.receiver_id = receiver.id) "
@@ -108,10 +114,12 @@ public class Message {
                                         result.getLong("created_at")),
                                 new User(result.getString("sender_id"), result.getString("sender_username"),
                                         result.getInt("sender_is_vendor"),
-                                        RsaKey.fromByteArray(result.getBytes("sender_public_key"))),
+                                        RsaKey.fromByteArray(result.getBytes("sender_rsa_public_key")),
+                                        DhKey.fromByteArray(result.getBytes("sender_dh_public_key"))),
                                 new User(result.getString("receiver_id"), result.getString("receiver_username"),
                                         result.getInt("receiver_is_vendor"),
-                                        RsaKey.fromByteArray(result.getBytes("receiver_public_key")))));
+                                        RsaKey.fromByteArray(result.getBytes("receiver_rsa_public_key")),
+                                        DhKey.fromByteArray(result.getBytes("receiver_dh_public_key")))));
             }
             return reviews;
         }

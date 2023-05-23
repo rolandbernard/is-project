@@ -4,22 +4,27 @@ import java.io.UnsupportedEncodingException;
 import java.security.*;
 
 public class Hash {
-    private static byte[] hash(int cnt, byte[] block1, byte[] block2) {
+    private static byte[] hash(byte[]... blocks) {
         try {
             var messageDigest = MessageDigest.getInstance("SHA-512");
-            messageDigest.update(new byte[] {
-                    (byte) cnt, (byte) (cnt >>> 8), (byte) (cnt >>> 16), (byte) (cnt >>> 24)
-            });
-            messageDigest.update(block1);
-            messageDigest.update(block2);
+            for (var block : blocks) {
+                messageDigest.update(block);
+            }
             return messageDigest.digest();
         } catch (NoSuchAlgorithmException e) {
             throw Utils.panic(e);
         }
     }
 
-    private static byte[] hash(int cnt, byte[] block) {
-        return hash(cnt, block, new byte[0]);
+    private static byte[] hash(int cnt, byte[]... blocks) {
+        var comb = new byte[blocks.length + 1][];
+        comb[0] = new byte[] {
+                (byte) cnt, (byte) (cnt >>> 8), (byte) (cnt >>> 16), (byte) (cnt >>> 24)
+        };
+        for (int i = 0; i < blocks.length; i++) {
+            comb[i + 1] = blocks[i];
+        }
+        return hash(blocks);
     }
 
     private static byte[] intToBlock(int a, int b, int c) {
@@ -41,7 +46,7 @@ public class Hash {
         return ((x % n) + n) % n;
     }
 
-    public static byte[] balloon(byte[] passwd, byte[] salt, int spaceCost, int timeCost, int length) {
+    private static byte[] balloon(byte[] passwd, byte[] salt, int spaceCost, int timeCost, int length) {
         int delta = 3;
         int cnt = 0;
         var buf = new byte[spaceCost][];
@@ -61,10 +66,11 @@ public class Hash {
             }
         }
         var hash = new byte[length];
-        var block_size = buf[0].length;
+        var blockSize = buf[0].length;
+        assert length <= blockSize * spaceCost;
         for (int i = 0; i < length; i++) {
-            var block = buf[spaceCost - 1 - (i / block_size)];
-            hash[i] = block[i % block_size];
+            var block = buf[spaceCost - 1 - (i / blockSize)];
+            hash[i] = block[i % blockSize];
         }
         return hash;
     }
@@ -82,7 +88,7 @@ public class Hash {
      *            Length of the returned hash in bytes.
      * @return The hash for password and salt.
      */
-    public static byte[] keyDerivation(String password, byte[] salt, String usage, int length) {
+    public static byte[] passwordHash(String password, byte[] salt, String usage, int length) {
         try {
             return balloon((usage + "\0" + password).getBytes("UTF-8"), salt, 32, 32, length);
         } catch (UnsupportedEncodingException e) {
@@ -104,5 +110,28 @@ public class Hash {
         } catch (NoSuchAlgorithmException e) {
             throw Utils.panic(e);
         }
+    }
+
+    /**
+     * Generate a new key of the given length from the given key material.
+     *
+     * @param length
+     *            The length of the resulting key.
+     * @param keys
+     *            The data to be used as the basis for generation.
+     * @return The new key of requested length.
+     */
+    public static byte[] stretchKey(int length, byte[]... keys) {
+        int cnt = 0;
+        byte[] derived = new byte[length];
+        int index = 0;
+        var last = hash(cnt++, keys);
+        while (index < length) {
+            for (int i = 0; index + i < length && i < last.length; i++) {
+                derived[index++] = last[i];
+            }
+            last = hash(cnt++, last);
+        }
+        return derived;
     }
 }

@@ -6,6 +6,7 @@ import java.util.*;
 
 import secure.*;
 import secure.Rsa.*;
+import secure.Dh.*;
 
 public class Review {
     public record ReviewUser(Review review, User user) {
@@ -51,7 +52,7 @@ public class Review {
 
     public static List<ReviewUser> getForProduct(Database db, String productId) throws SQLException {
         var connection = db.getConnection();
-        var sql = "SELECT review.id, user_id, product_id, rating, comment, review.created_at, username, password, is_vendor, public_key "
+        var sql = "SELECT review.id, user_id, product_id, rating, comment, review.created_at, username, password, is_vendor, rsa_public_key, dh_public_key "
                 + "FROM review JOIN user ON (user_id = user.id) "
                 + "WHERE product_id = ? ORDER BY review.created_at DESC";
         try (var statement = connection.prepareStatement(sql)) {
@@ -59,7 +60,8 @@ public class Review {
             var result = statement.executeQuery();
             var reviews = new ArrayList<ReviewUser>();
             while (result.next()) {
-                var publicKey = RsaKey.fromByteArray(result.getBytes("public_key"));
+                var rsaPublicKey = RsaKey.fromByteArray(result.getBytes("rsa_public_key"));
+                var dhPublicKey = DhKey.fromByteArray(result.getBytes("dh_public_key"));
                 reviews.add(
                         new ReviewUser(
                                 new Review(result.getString("id"), result.getString("user_id"),
@@ -67,7 +69,7 @@ public class Review {
                                         result.getString("comment"),
                                         result.getLong("created_at")),
                                 new User(result.getString("user_id"), result.getString("username"),
-                                        result.getInt("is_vendor"), publicKey)));
+                                        result.getInt("is_vendor"), rsaPublicKey, dhPublicKey)));
             }
             return reviews;
         }

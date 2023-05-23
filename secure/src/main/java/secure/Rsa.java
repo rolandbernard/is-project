@@ -33,11 +33,6 @@ public class Rsa {
     public static record RsaKeys(RsaKey priv, RsaKey pub) {
     }
 
-    public static BigInteger crypt(BigInteger message, RsaKey key) {
-        assert message.compareTo(key.n) < 0;
-        return message.modPow(key.e, key.n);
-    }
-
     public static RsaKeys generateKeys(int bits) {
         var p = new BigInteger(bits / 2, 128, Random.instance());
         var q = new BigInteger(bits / 2, 128, Random.instance());
@@ -48,6 +43,11 @@ public class Rsa {
         assert e.compareTo(lamb) == -1;
         var d = e.modInverse(lamb);
         return new RsaKeys(new RsaKey(d, n), new RsaKey(e, n));
+    }
+
+    public static BigInteger crypt(BigInteger message, RsaKey key) {
+        assert message.compareTo(key.n) < 0;
+        return message.modPow(key.e, key.n);
     }
 
     public static byte[] sign(String message, RsaKey key) {

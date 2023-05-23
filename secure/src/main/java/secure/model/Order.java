@@ -8,6 +8,7 @@ import java.util.*;
 
 import secure.*;
 import secure.Rsa.*;
+import secure.Dh.*;
 
 public class Order implements Serializable {
     public record OrderProductUser(Order order, Product product, User user) {
@@ -50,8 +51,8 @@ public class Order implements Serializable {
     public static List<OrderProductUser> getByUser(Database db, String userId) throws SQLException {
         var connection = db.getConnection();
         var sql = "SELECT `order`.id, product_id, `order`.user_id, `order`.created_at, name, price, product.user_id as product_user_id, signature, "
-                + "vendor.username AS vendor_username, vendor.public_key AS vendor_public_key, vendor.is_vendor AS vendor_is_vendor, "
-                + "buyer.id AS buyer_id, buyer.username AS buyer_username, buyer.public_key AS buyer_public_key, buyer.is_vendor AS buyer_is_vendor "
+                + "vendor.username AS vendor_username, vendor.rsa_public_key AS vendor_rsa_public_key, vendor.dh_public_key AS vendor_dh_public_key, vendor.is_vendor AS vendor_is_vendor, "
+                + "buyer.id AS buyer_id, buyer.username AS buyer_username, buyer.rsa_public_key AS buyer_rsa_public_key, buyer.dh_public_key AS buyer_dh_public_key, buyer.is_vendor AS buyer_is_vendor "
                 + "FROM `order` JOIN product ON (product_id = product.id) "
                 + "JOIN user AS buyer ON (`order`.user_id = buyer.id) "
                 + "JOIN user AS vendor ON (product.user_id = vendor.id) WHERE `order`.user_id = ? "
@@ -62,7 +63,8 @@ public class Order implements Serializable {
             var orders = new ArrayList<OrderProductUser>();
             while (result.next()) {
                 var buyer = new User(result.getString("buyer_id"), result.getString("buyer_username"),
-                        result.getInt("buyer_is_vendor"), RsaKey.fromByteArray(result.getBytes("buyer_public_key")));
+                        result.getInt("buyer_is_vendor"), RsaKey.fromByteArray(result.getBytes("buyer_rsa_public_key")),
+                        DhKey.fromByteArray(result.getBytes("buyer_dh_public_key")));
                 var orderId = result.getString("id");
                 var productId = result.getString("product_id");
                 var signature = result.getBytes("signature");
@@ -74,7 +76,9 @@ public class Order implements Serializable {
                                 new Product(result.getString("product_id"), result.getString("name"),
                                         result.getInt("price"), result.getString("user_id")),
                                 new User(result.getString("product_user_id"), result.getString("vendor_username"),
-                                        result.getInt("vendor_is_vendor"), RsaKey.fromByteArray(result.getBytes("vendor_public_key")))));
+                                        result.getInt("vendor_is_vendor"),
+                                        RsaKey.fromByteArray(result.getBytes("vendor_rsa_public_key")),
+                                        DhKey.fromByteArray(result.getBytes("vendor_dh_public_key")))));
             }
             return orders;
         }
@@ -82,7 +86,7 @@ public class Order implements Serializable {
 
     public static List<OrderProductUser> getForUser(Database db, String userId) throws SQLException {
         var connection = db.getConnection();
-        var sql = "SELECT `order`.id, product_id, `order`.user_id AS user_id, `order`.created_at AS order_created_at, name, price, username, public_key, signature, is_vendor "
+        var sql = "SELECT `order`.id, product_id, `order`.user_id AS user_id, `order`.created_at AS order_created_at, name, price, username, rsa_public_key, dh_public_key, signature, is_vendor "
                 + "FROM `order` JOIN product ON (product_id = product.id) "
                 + "JOIN user ON (`order`.user_id = user.id) WHERE `product`.user_id = ? "
                 + "ORDER BY `order`.created_at DESC";
@@ -96,7 +100,8 @@ public class Order implements Serializable {
                 var signature = result.getBytes("signature");
                 var createdAt = result.getLong("order_created_at");
                 var buyer = new User(result.getString("user_id"), result.getString("username"),
-                        result.getInt("is_vendor"), RsaKey.fromByteArray(result.getBytes("public_key")));
+                        result.getInt("is_vendor"), RsaKey.fromByteArray(result.getBytes("rsa_public_key")),
+                        DhKey.fromByteArray(result.getBytes("dh_public_key")));
                 var isValid = validateSignature(orderId, buyer, productId, createdAt, signature);
                 orders.add(
                         new OrderProductUser(
@@ -122,13 +127,13 @@ public class Order implements Serializable {
 
     private static byte[] createSignature(User user, String orderId, String productId, long createdAt) {
         var signatureString = createSignatureString(orderId, user, productId, createdAt);
-        return Rsa.sign(signatureString, user.privateKey);
+        return Rsa.sign(signatureString, user.rsaPrivateKey);
     }
 
     private static boolean validateSignature(String orderId, User buyer, String productId, long createdAt,
             byte[] signature) {
         var signatureString = createSignatureString(orderId, buyer, productId, createdAt);
-        return Rsa.verify(signatureString, signature, buyer.publicKey);
+        return Rsa.verify(signatureString, signature, buyer.rsaPublicKey);
     }
 
     private static String createSignatureString(String orderId, User user, String productId, long createdAt) {

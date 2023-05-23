@@ -19,7 +19,8 @@ public class CheckCsrfToken implements HandlerInterceptor {
                 session.removeAttribute("csrf-token");
                 if (request.getMethod().equals("GET")) {
                     var origin = request.getRequestURI().strip();
-                    response.sendRedirect("/auth/login?origin=" + URLEncoder.encode(origin.isBlank() ? "/" : origin, "UTF-8"));
+                    response.sendRedirect(
+                            "/auth/login?origin=" + URLEncoder.encode(origin.isBlank() ? "/" : origin, "UTF-8"));
                 } else {
                     response.sendRedirect("/auth/login");
                 }

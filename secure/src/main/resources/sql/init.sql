@@ -4,8 +4,10 @@ CREATE TABLE IF NOT EXISTS `user` (
     `is_vendor` integer NOT NULL DEFAULT 0,
     `password` blob NOT NULL,
     `salt` blob NOT NULL,
-    `private_key` blob NOT NULL,
-    `public_key` blob NOT NULL,
+    `rsa_private_key` blob NOT NULL,
+    `rsa_public_key` blob NOT NULL,
+    `dh_private_key` blob NOT NULL,
+    `dh_public_key` blob NOT NULL,
     `created_at` integer NOT NULL
 );
 CREATE TABLE IF NOT EXISTS `product` (
@@ -44,13 +46,6 @@ CREATE TABLE IF NOT EXISTS `response` (
     `created_at` integer NOT NULL,
     FOREIGN KEY (`review_id`) REFERENCES `review`(`id`),
     FOREIGN KEY (`user_id`) REFERENCES `user`(`id`)
-);
-CREATE TABLE IF NOT EXISTS `chat` (
-    `id` char(36) PRIMARY KEY,
-    `sender_id` char(36) NOT NULL,
-    `receiver_id` char(36) NOT NULL,
-    `sender_key` text NOT NULL,
-    `receiver_key` text NOT NULL
 );
 CREATE TABLE IF NOT EXISTS `message` (
     `id` char(36) PRIMARY KEY,
