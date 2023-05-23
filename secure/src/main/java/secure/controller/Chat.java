@@ -25,6 +25,10 @@ class Chat {
     public String chat(@PathVariable String otherId, HttpServletRequest request, Model model) throws Exception {
         try (Database db = new Database()) {
             User user = (User) request.getAttribute("user");
+            User otherUser = User.getUser(db, otherId);
+            if (user.isVendor == otherUser.isVendor) {
+                throw new Exception("Only Customer and Vendor can have a chat");
+            }
             var messages = Message.getBetween(db, user.id, otherId);
             model.addAttribute("messages", messages);
             model.addAttribute("otherUser", User.getUser(db, otherId));
@@ -37,6 +41,10 @@ class Chat {
             Model model) throws Exception {
         try (Database db = new Database()) {
             User user = (User) request.getAttribute("user");
+            User otherUser = User.getUser(db, otherId);
+            if (user.isVendor == otherUser.isVendor) {
+                throw new Exception("Only Customer and Vendor can send messages");
+            }
             Message.create(db, user.id, otherId, message);
             return "redirect:/chat/" + otherId;
         }

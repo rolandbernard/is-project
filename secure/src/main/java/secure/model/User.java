@@ -3,35 +3,49 @@ package secure.model;
 import java.sql.SQLException;
 
 import secure.*;
+import secure.Rsa.*;
 
 public class User {
     public final String id;
     public boolean isVendor;
     public final String username;
-    public final String password;
+    public RsaKey publicKey = null;
+    public RsaKey privateKey = null;
 
-    public User(String id, String username, String password, int isVendor) {
+    public User(String id, String username, int isVendor, RsaKey publicKey, RsaKey privateKey) {
         this.id = id;
         this.isVendor = isVendor == 1;
         this.username = username;
-        this.password = password;
+        this.publicKey = publicKey;
+        this.privateKey = privateKey;
+    }
+
+    public User(String id, String username, int isVendor, RsaKey publicKey) {
+        this(id, username, isVendor, publicKey, null);
     }
 
     public static User create(Database db, String username, String password, boolean isVendor) throws SQLException {
         var connection = db.getConnection();
-        var sql = "INSERT INTO user (id, username, password, is_vendor, salt) VALUES (?, ?, ?, ?, ?)";
+        var sql = "INSERT INTO user (id, username, password, is_vendor, salt, public_key, private_key) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (var statement = connection.prepareStatement(sql)) {
             var uuid = Utils.newUuid();
-            var salt = Random.instance().nextBytesBase64(64);
-            var passwordHash = Utils.passwordHash(password, salt);
+            var salt = Random.instance().nextBytes(64);
+            var keys = Rsa.generateKeys(4096);
+            var publicKey = keys.pub().toByteArray();
+            var desKey = Utils.keyDerivation(password, salt, "private key encryption", 16);
+            var privateKey = Des.encryptCbc(keys.priv().toByteArray(), desKey);
+            var passwordHash = Utils.keyDerivation(password, salt, "password hash", 32);
             statement.setString(1, uuid);
             statement.setString(2, username);
-            statement.setString(3, passwordHash);
+            statement.setBytes(3, passwordHash);
             statement.setInt(4, isVendor ? 1 : 0);
-            statement.setString(5, salt);
+            statement.setBytes(5, salt);
+            statement.setBytes(6, publicKey);
+            statement.setBytes(7, privateKey);
             statement.execute();
             connection.commit();
-            return new User(uuid, username, password, isVendor ? 1 : 0);
+            return new User(uuid, username, isVendor ? 1 : 0, keys.pub(), keys.priv());
         } catch (SQLException e) {
             connection.rollback();
             throw e;
@@ -40,22 +54,23 @@ public class User {
 
     public static User getUser(Database db, String username, String password) throws Exception {
         var connection = db.getConnection();
-        var sql = "SELECT id, username, password, salt, is_vendor FROM user WHERE username = ?";
+        var sql = "SELECT id, username, password, salt, is_vendor, private_key, public_key FROM user WHERE username = ?";
         try (var statement = connection.prepareStatement(sql)) {
             statement.setString(1, username);
             var results = statement.executeQuery();
             if (results.next()) {
-
-                var salt = results.getString("salt");
-                var hashedPassword = Utils.passwordHash(password, salt);
-
-                if (!results.getString("password").equals(hashedPassword)) {
+                var salt = results.getBytes("salt");
+                var passwordHash = Utils.keyDerivation(password, salt, "password hash", 32);
+                if (!results.getBytes("password").equals(passwordHash)) {
                     Thread.sleep(1000);
                     return null;
                 }
-
-                return new User(results.getString("id"), results.getString("username"), results.getString("password"),
-                        results.getInt("is_vendor"));
+                var publicKey = RsaKey.fromByteArray(results.getBytes("public_key"));
+                var desKey = Utils.keyDerivation(password, salt, "private key encryption", 16);
+                var privKeyBytes = Des.decryptCbc(results.getBytes("private_key"), desKey);
+                var privateKey = RsaKey.fromByteArray(privKeyBytes);
+                return new User(results.getString("id"), results.getString("username"),
+                        results.getInt("is_vendor"), publicKey, privateKey);
             } else {
                 Thread.sleep(1000);
                 return null;
@@ -69,15 +84,34 @@ public class User {
 
     public static User getUser(Database db, String id) throws SQLException {
         var connection = db.getConnection();
-        var sql = "SELECT id, username, password, is_vendor FROM user WHERE id = ?";
+        var sql = "SELECT id, username, is_vendor, public_key FROM user WHERE id = ?";
         try (var statement = connection.prepareStatement(sql)) {
             statement.setString(1, id);
             var results = statement.executeQuery();
             if (results.next()) {
-                return new User(results.getString("id"), results.getString("username"), results.getString("password"),
-                        results.getInt("is_vendor"));
+                var publicKey = RsaKey.fromByteArray(results.getBytes("public_key"));
+                return new User(results.getString("id"), results.getString("username"),
+                        results.getInt("is_vendor"), publicKey);
             } else {
                 return null;
+            }
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            connection.rollback();
+        }
+    }
+
+    public static boolean isUsernameFree(Database db, String username) throws SQLException {
+        var connection = db.getConnection();
+        var sql = "SELECT id FROM user WHERE username = ?";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            var results = statement.executeQuery();
+            if (results.next() && results.getString("id") != null) {
+                return false;
+            } else {
+                return true;
             }
         } catch (SQLException e) {
             throw e;

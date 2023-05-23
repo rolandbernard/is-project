@@ -1,11 +1,13 @@
 package secure.controller;
 
+import java.util.*;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.*;
-import secure.Database;
+import secure.*;
 import secure.model.*;
 
 @Controller
@@ -13,7 +15,7 @@ import secure.model.*;
 public class Auth {
     private static void setAuthSession(HttpServletRequest request, User user) {
         var session = request.getSession();
-        session.setAttribute("user-id", user.id);
+        session.setAttribute("user", user);
     }
 
     @GetMapping("/logout")
@@ -60,14 +62,19 @@ public class Auth {
             @RequestParam(defaultValue = "false") boolean vendor, Model model, HttpServletRequest request)
             throws Exception {
         model.addAttribute("username", username);
-        if (!password.equals(passwordRepeat)) {
-            model.addAttribute("error", "The two passwords are not equal");
-            return "auth/register";
-        }
         try (var db = new Database()) {
+            var errors = Utils.validateUsername(username);
+            errors.addAll(Utils.validatePassword(password, passwordRepeat));
+            if (!User.isUsernameFree(db, username)) {
+                errors.add("Username already exists");
+            }
+            if (errors.size() > 0) {
+                model.addAttribute("errors", errors);
+                return "auth/register";
+            }
             var user = User.create(db, username, password, vendor);
             if (user == null) {
-                model.addAttribute("error", "Username already exists");
+                model.addAttribute("errors", List.of("Failed to create user"));
                 return "auth/register";
             }
             setAuthSession(request, user);

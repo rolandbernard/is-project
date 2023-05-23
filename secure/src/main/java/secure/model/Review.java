@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import secure.*;
+import secure.Rsa.*;
 
 public class Review {
     public record ReviewUser(Review review, User user) {
@@ -48,7 +49,7 @@ public class Review {
 
     public static List<ReviewUser> getForProduct(Database db, String productId) throws SQLException {
         var connection = db.getConnection();
-        var sql = "SELECT review.id, user_id, product_id, rating, comment, review.created_at, username, password, is_vendor "
+        var sql = "SELECT review.id, user_id, product_id, rating, comment, review.created_at, username, password, is_vendor, public_key "
                 + "FROM review JOIN user ON (user_id = user.id) "
                 + "WHERE product_id = ? ORDER BY review.created_at DESC";
         try (var statement = connection.prepareStatement(sql)) {
@@ -56,15 +57,12 @@ public class Review {
             var result = statement.executeQuery();
             var reviews = new ArrayList<ReviewUser>();
             while (result.next()) {
+                var publicKey = RsaKey.fromByteArray(result.getBytes("public_key"));
                 reviews.add(
                         new ReviewUser(
-                                new Review(result.getString("id"), result.getString("user_id"),
-                                        result.getString("product_id"),
-                                        result.getInt("rating"), result.getString("comment"),
-                                        result.getTimestamp("created_at").toLocalDateTime()),
+                                new Review(result.getString("id"), result.getString("user_id"), result.getString("product_id"), result.getInt("rating"), result.getString("comment"), result.getTimestamp("created_at").toLocalDateTime()),
                                 new User(result.getString("user_id"), result.getString("username"),
-                                        result.getString("password"),
-                                        result.getInt("is_vendor"))));
+                                        result.getInt("is_vendor"), publicKey)));
             }
             return reviews;
         }

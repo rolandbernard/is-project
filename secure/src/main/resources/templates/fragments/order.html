@@ -16,6 +16,11 @@
             <td>
                 <span th:text="${#temporals.format(order.order.createdAt, 'dd.MM.yyyy, HH:mm')}"></span>
             </td>
+            <td>
+                <span th:if="${order.isValid}">
+                    ✓
+                </span>
+            </td>
         </tr>
     </div>
 </body>

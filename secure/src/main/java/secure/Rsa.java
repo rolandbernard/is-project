@@ -4,6 +4,30 @@ import java.math.BigInteger;
 
 public class Rsa {
     public static record RsaKey(BigInteger e, BigInteger n) {
+        public static RsaKey fromByteArray(byte[] bytes) {
+            int exponentLength = bytes[0] | (bytes[1] << 8);
+            int modulusLength = bytes[2] | (bytes[3] << 8);
+            return new RsaKey(
+                new BigInteger(bytes, 4, exponentLength),
+                new BigInteger(bytes, exponentLength + 4, modulusLength));
+        }
+
+        public byte[] toByteArray() {
+            var exponent = e.toByteArray();
+            var modulus = n.toByteArray();
+            var combined = new byte[4 + exponent.length + modulus.length];
+            combined[0] = (byte)exponent.length;
+            combined[1] = (byte)(exponent.length >>> 8);
+            combined[2] = (byte)modulus.length;
+            combined[3] = (byte)(modulus.length >>> 8);
+            for (int i = 0; i < exponent.length; i++) {
+                combined[4 + i] = exponent[i];
+            }
+            for (int i = 0; i < modulus.length; i++) {
+                combined[4 + exponent.length + i] = modulus[i];
+            }
+            return combined;
+        }
     }
 
     public static record RsaKeys(RsaKey priv, RsaKey pub) {

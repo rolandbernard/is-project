@@ -23,6 +23,9 @@ public class Products {
         User user = (User) request.getAttribute("user");
         try (var db = new Database()) {
             try {
+                if (!user.isVendor) {
+                    throw new Exception("Only vendors can create products");
+                }
                 int price = Utils.parseNumber(priceString);
                 var product = Product.create(db, name, price, user.id);
                 return "redirect:/product/" + product.id;
@@ -58,8 +61,20 @@ public class Products {
             model.addAttribute("product", productVendor);
             model.addAttribute("isOwner", product.userId == user.id);
             model.addAttribute("hasReviewed", reviews.stream().anyMatch(review -> review.review().userId == user.id));
+            model.addAttribute("hasBought", Order.getByUser(db, user.id).stream()
+                    .anyMatch(order -> order.order().productId.equals(id)));
             model.addAttribute("reviews", reviews);
             return "product/info";
+        }
+    }
+
+    @GetMapping("/{id}/order")
+    public String getOrder(@PathVariable String id, Model model) throws Exception {
+        try (var db = new Database()) {
+            var productVendor = Product.getProduct(db, id);
+            var product = productVendor.product();
+            model.addAttribute("product", product);
+            return "product/order";
         }
     }
 
@@ -84,6 +99,16 @@ public class Products {
             if (product == null) {
                 throw new Exception("Product not found");
             }
+            var hasBoughtProduct = Order.getByUser(db, user.id).stream()
+                    .anyMatch(order -> order.order().productId.equals(id));
+            if (!hasBoughtProduct) {
+                throw new Exception("You must buy the product to review it");
+            }
+            var reviews = Response.getForProduct(db, product.id);
+            var hasReview = reviews.stream().anyMatch(review -> review.review().userId == user.id);
+            if (user.isVendor || (!user.isVendor && hasReview)) {
+                throw new Exception("Only customers can review once");
+            }
             Review.create(db, user.id, product.id, rating, comment);
             return "redirect:/product/" + product.id;
         }
@@ -94,6 +119,9 @@ public class Products {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
             var products = Product.getProducts(db, user.id);
+            if (!user.isVendor) {
+                return "redirect:/product/all";
+            }
             model.addAttribute("products", products);
             model.addAttribute("title", "My products");
             return "product/list";
@@ -110,5 +138,4 @@ public class Products {
             return "product/list";
         }
     }
-
 }

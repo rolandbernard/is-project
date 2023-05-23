@@ -169,6 +169,17 @@ public class Des {
         return cipher;
     }
 
+    public static byte[] encryptCbc(byte[] message, byte[] keys) {
+        long key = bytesToBlock(keys, 0, 0);
+        long iv;
+        if (keys.length >= 16) {
+            iv = bytesToBlock(keys, 8, 0);
+        } else {
+            iv = 0xb8_93_87_fa_a0_0c_0e_e4L;
+        }
+        return encryptCbc(message, key, iv);
+    }
+
     public static byte[] decryptCbc(byte[] message, long key, long iv) {
         assert message.length % 8 == 0;
         var keys = generateSubKeys(key);
@@ -181,5 +192,16 @@ public class Des {
             last = cipherBlock;
         }
         return Arrays.copyOf(plain, message.length - plain[plain.length - 1]);
+    }
+
+    public static byte[] decryptCbc(byte[] message, byte[] keys) {
+        long key = bytesToBlock(keys, 0, 0);
+        long iv;
+        if (keys.length >= 16) {
+            iv = bytesToBlock(keys, 8, 0);
+        } else {
+            iv = 0xb8_93_87_fa_a0_0c_0e_e4L;
+        }
+        return decryptCbc(message, key, iv);
     }
 }

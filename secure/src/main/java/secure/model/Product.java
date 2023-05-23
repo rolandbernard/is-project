@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import secure.*;
+import secure.Rsa.*;
 
 public class Product implements Serializable {
     public record ProductVendor(Product product, User vendor) {
@@ -43,7 +44,7 @@ public class Product implements Serializable {
 
     public static ProductVendor getProduct(Database db, String id) throws SQLException {
         var connection = db.getConnection();
-        var sql = "SELECT product.id as product_id, name, price, user_id, username, password, is_vendor "
+        var sql = "SELECT product.id as product_id, name, price, user_id, username, public_key, is_vendor "
                 + "FROM product JOIN user ON (user_id = user.id) WHERE product.id = ?";
         try (var statement = connection.prepareStatement(sql)) {
             statement.setString(1, id);
@@ -52,7 +53,7 @@ public class Product implements Serializable {
                 return new ProductVendor(new Product(results.getString("product_id"), results.getString("name"),
                         results.getInt("price"), results.getString("user_id")),
                         new User(results.getString("user_id"), results.getString("username"),
-                                results.getString("password"), results.getInt("is_vendor")));
+                                results.getInt("is_vendor"), RsaKey.fromByteArray(results.getBytes("public_key"))));
             } else {
                 return null;
             }

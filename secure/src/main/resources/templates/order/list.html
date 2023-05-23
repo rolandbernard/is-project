@@ -16,6 +16,7 @@
                     <th>Product</th>
                     <th th:text="${user.isVendor ? 'Customer' : 'Vendor'}"></th>
                     <th>Date</th>
+                    <th>Verified</th>
                 </tr>
                 <div th:each="order : ${orders}">
                     <tr th:replace="~{fragments/order :: order-item(order=${order})}"></tr>
