@@ -80,10 +80,7 @@ public class Products {
     }
 
     @PostMapping("/{productId}/review/{reviewId}/response")
-    public String postResponse(
-            @PathVariable String productId,
-            @PathVariable String reviewId, @RequestParam String comment,
-            HttpServletRequest request) throws Exception {
+    public String postResponse(@PathVariable String productId, @PathVariable String reviewId, @RequestParam String comment, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
             Response.create(db, reviewId, user.id, comment);
@@ -92,8 +89,7 @@ public class Products {
     }
 
     @PostMapping("/{id}/review")
-    public String postReview(@PathVariable String id, @RequestParam String comment, @RequestParam() int rating,
-            Model model, HttpServletRequest request) throws Exception {
+    public String postReview(@PathVariable String id, @RequestParam String comment, @RequestParam() int rating, Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
             var product = Product.getProduct(db, id).product();

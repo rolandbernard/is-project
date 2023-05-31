@@ -9,8 +9,8 @@ import secure.Dh.*;
 
 public class User {
     public final String id;
-    public boolean isVendor;
     public final String username;
+    public boolean isVendor;
     public RsaKey rsaPublicKey = null;
     public RsaKey rsaPrivateKey = null;
     public DhKey dhPublicKey = null;
@@ -63,6 +63,28 @@ public class User {
             connection.commit();
             return new User(uuid, username, isVendor ? 1 : 0, rsaKeys.pub(), rsaKeys.priv(), dhKeys.pub(),
                     dhKeys.priv());
+        } catch (SQLException e) {
+            connection.rollback();
+            throw e;
+        }
+    }
+
+    public static void changePassword(Database db, User user, String password) throws SQLException {
+        var connection = db.getConnection();
+        var sql = "UPDATE user SET salt = ?, password = ?, rsa_private_key = ?, dh_private_key = ? WHERE id = ?";
+        try (var statement = connection.prepareStatement(sql)) {
+            var salt = Random.instance().nextBytes(64);
+            var passwordHash = Hash.passwordHash(password, salt, "password hash", 32);
+            var desKey = Hash.passwordHash(password, salt, "private key encryption", 16);
+            var rsaPrivateKey = Des.encryptCbc(user.rsaPrivateKey.toByteArray(), desKey);
+            var dhPrivateKey = Des.encryptCbc(user.dhPrivateKey.toByteArray(), desKey);
+            statement.setBytes(1, salt);
+            statement.setBytes(2, passwordHash);
+            statement.setBytes(3, rsaPrivateKey);
+            statement.setBytes(4, dhPrivateKey);
+            statement.setString(5, user.id);
+            statement.execute();
+            connection.commit();
         } catch (SQLException e) {
             connection.rollback();
             throw e;

@@ -33,10 +33,7 @@ public class Auth {
     }
 
     @PostMapping("/login")
-    public String postLogin(HttpSession session, @RequestParam(value = "csrf-token") String csrfToken,
-            @RequestParam(value = "username") String username, @RequestParam(value = "password") String password,
-            @RequestParam(value = "origin", required = false) String origin, Model model, HttpServletRequest request)
-            throws Exception {
+    public String postLogin(HttpSession session, @RequestParam("csrf-token") String csrfToken, @RequestParam String username, @RequestParam String password, @RequestParam(required = false) String origin, Model model, HttpServletRequest request) throws Exception {
         model.addAttribute("username", username);
         try (var db = new Database()) {
             var user = User.getUser(db, username, password);
@@ -56,11 +53,7 @@ public class Auth {
     }
 
     @PostMapping("/register")
-    public String postRegister(HttpSession session, @RequestParam(value = "username") String username,
-            @RequestParam(value = "password") String password,
-            @RequestParam(value = "password-repeat") String passwordRepeat,
-            @RequestParam(defaultValue = "false") boolean vendor, Model model, HttpServletRequest request)
-            throws Exception {
+    public String postRegister(HttpSession session, @RequestParam String username, @RequestParam String password, @RequestParam("password-repeat") String passwordRepeat, @RequestParam(defaultValue = "false") boolean vendor, Model model, HttpServletRequest request) throws Exception {
         model.addAttribute("username", username);
         try (var db = new Database()) {
             var errors = Utils.validateUsername(username);
@@ -78,6 +71,26 @@ public class Auth {
                 return "auth/register";
             }
             setAuthSession(request, user);
+            return "redirect:/";
+        }
+    }
+
+    @GetMapping("/password")
+    public String postPassword(Model model, HttpServletRequest request, HttpSession session) throws Exception {
+        return "auth/password";
+    }
+
+    @PostMapping("/password")
+    public String postPassword(HttpSession session, @RequestParam String password, @RequestParam("new-password") String newPassword, @RequestParam("password-repeat") String passwordRepeat, Model model, HttpServletRequest request) throws Exception {
+        try (var db = new Database()) {
+            var user = (User)request.getAttribute("user");
+            var errors = Utils.validatePassword(newPassword, passwordRepeat);
+            if (!errors.isEmpty() || User.getUser(db, user.username, password) == null) {
+                errors.add("The old password is wrong");
+                model.addAttribute("errors", errors);
+                return "auth/password";
+            }
+            User.changePassword(db, user, newPassword);
             return "redirect:/";
         }
     }

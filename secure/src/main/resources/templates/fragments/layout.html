@@ -47,8 +47,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/chat">Chat</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary" href="/auth/logout">Logout</a>
+                    <li class="nav-item btn-group">
+                        <div type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                            data-bs-display="static" aria-expanded="false">
+                            Profile
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-lg-end">
+                            <li><a href="/auth/password" class="dropdown-item" type="button">Change password</a></li>
+                            <li><a href="/auth/logout" class="dropdown-item" type="button">Logout</a></li>
+                        </ul>
                     </li>
                 </ul>
                 <a class="btn btn-primary" href="/auth/login" th:if="${user == null}">Login</a>
