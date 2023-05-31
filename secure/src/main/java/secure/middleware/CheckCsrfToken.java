@@ -33,7 +33,8 @@ public class CheckCsrfToken implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
             ModelAndView modelAndView) throws Exception {
-        modelAndView.getModel().put("csrfToken", request.getSession().getAttribute("csrf-token"));
+        if (modelAndView != null)
+            modelAndView.getModel().put("csrfToken", request.getSession().getAttribute("csrf-token"));
     }
 
     @Override
