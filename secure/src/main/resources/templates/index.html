@@ -4,11 +4,31 @@
 <head th:replace="~{fragments/layout :: head}" th:with="title='Welcome'">
 </head>
 
-<body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
     <header th:replace="~{fragments/layout :: header}"></header>
-    <div>
+    <div style="flex: 1 1 max-content">
         <div class="container">
-            <h1>Welcome</h1>
+            <h1>Welcome to eCommerce</h1>
+            <p>A <b>secure</b> website for placing orders, posting reviews, and communication between vendors and
+                customers.</p>
+            <hr>
+            <div class="container">
+                <h2 class="mt-5">Get started today!</h2>
+                <h2 class="mt-5">Features for vendors</h2>
+                <ul>
+                    <li>Post product offerings</li>
+                    <li>Receive and review orders (digitally signed using RSA cryptography).</li>
+                    <li>Receive valuable customer feedback.</li>
+                    <li>Communicate with customers directly (using DES encrypted messaging).</li>
+                </ul>
+                <h2 class="mt-5">Features for customers</h2>
+                <ul>
+                    <li>Search for products from different vendors.</li>
+                    <li>Order products (digitally signed using RSA cryptography).</li>
+                    <li>Post reviews for bought products.</li>
+                    <li>Communicate with vendors directly (using DES encrypted messaging).</li>
+                </ul>
+            </div>
         </div>
     </div>
     <footer th:replace="~{fragments/layout :: footer}"></footer>

@@ -6,25 +6,29 @@
 
 <body style="min-height: 100vh; display: flex; flex-direction: column;">
     <header th:replace="~{fragments/layout :: header}"></header>
-    <div class="container">
-        <h1 th:text="${otherUser.username}">
-        </h1>
-        <div>
-            <div th:each="message : ${messages}" class="mb-2">
-                <div
-                    th:class="${message.sender.id == user.id ? 'd-flex flex-column justify-content-end align-items-end' : 'd-flex flex-column align-items-start'}">
-                    <div th:text="${message.sender.username}"></div>
-                    <div th:class="${message.sender.id == user.id ? 'card bg-primary text-white' : 'card bg-light'}">
-                        <div class="py-2 px-3 mb-0" th:text="${message.message.message}"></div>
+    <div style="flex: 1 1 max-content">
+        <div class="container">
+            <h1 th:text="${otherUser.username}">
+            </h1>
+            <div>
+                <div th:each="message : ${messages}" class="mb-2">
+                    <div
+                        th:class="${message.sender.id == user.id ? 'd-flex flex-column justify-content-end align-items-end' : 'd-flex flex-column align-items-start'}">
+                        <div th:text="${message.sender.username}"></div>
+                        <div
+                            th:class="${message.sender.id == user.id ? 'card bg-primary text-white' : 'card bg-light'}">
+                            <div class="py-2 px-3 mb-0" th:text="${message.message.message}"></div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <form th:action="'/chat/' + ${otherUser.id}" method="post">
+                <input type="hidden" name="csrf-token" th:value="${csrfToken}">
+                <textarea name="message" class="form-control" placeholder="Type your message here..."
+                    required></textarea>
+                <button type="submit" class="btn btn-primary">Send</button>
+            </form>
         </div>
-        <form th:action="'/chat/' + ${otherUser.id}" method="post">
-            <input type="hidden" name="csrf-token" th:value="${csrfToken}">
-            <textarea name="message" class="form-control" placeholder="Type your message here..." required></textarea>
-            <button type="submit" class="btn btn-primary">Send</button>
-        </form>
     </div>
     <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>

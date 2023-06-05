@@ -63,7 +63,7 @@ public class User {
             connection.commit();
             return new User(uuid, username, isVendor ? 1 : 0, rsaKeys.pub(), rsaKeys.priv(), dhKeys.pub(),
                     dhKeys.priv());
-        } catch (SQLException e) {
+        } catch (Exception e) {
             connection.rollback();
             throw e;
         }
@@ -85,7 +85,7 @@ public class User {
             statement.setString(5, user.id);
             statement.execute();
             connection.commit();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             connection.rollback();
             throw e;
         }
@@ -118,8 +118,6 @@ public class User {
                 Thread.sleep(1000);
                 return null;
             }
-        } catch (Exception e) {
-            throw e;
         } finally {
             connection.rollback();
         }
@@ -139,8 +137,6 @@ public class User {
             } else {
                 return null;
             }
-        } catch (SQLException e) {
-            throw e;
         } finally {
             connection.rollback();
         }
@@ -157,8 +153,6 @@ public class User {
             } else {
                 return true;
             }
-        } catch (SQLException e) {
-            throw e;
         } finally {
             connection.rollback();
         }

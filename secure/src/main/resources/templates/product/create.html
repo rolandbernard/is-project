@@ -4,30 +4,32 @@
 <head th:replace="~{fragments/layout :: head(title='Create Product')}">
 </head>
 
-<body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
     <header th:replace="~{fragments/layout :: header}"></header>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-6">
-                <h1 class="text-center mb-3">Create a new product</h1>
-                <div th:if="${error}">
-                    <p th:text="${error}" class="alert alert-danger text-center">
-                    </p>
+    <div class="d-flex align-items-center justify-content-center" style="flex: 1 1 max-content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-6">
+                    <h1 class="text-center mb-3">Create a new product</h1>
+                    <div th:if="${error}">
+                        <p th:text="${error}" class="alert alert-danger text-center">
+                        </p>
+                    </div>
+                    <form action="/product/create" method="post">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" name="name" class="form-control" id="name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Price (€)</label>
+                            <input type="text" name="price" class="form-control" id="price">
+                        </div>
+                        <input type="hidden" name="csrf-token" th:value="${csrfToken}">
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn d-block btn-primary">Create</button>
+                        </div>
+                    </form>
                 </div>
-                <form action="/product/create" method="post">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" name="name" class="form-control" id="name">
-                    </div>
-                    <div class="mb-3">
-                        <label for="price" class="form-label">Price (€)</label>
-                        <input type="text" name="price" class="form-control" id="price">
-                    </div>
-                    <input type="hidden" name="csrf-token" th:value="${csrfToken}">
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn d-block btn-primary">Create</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>

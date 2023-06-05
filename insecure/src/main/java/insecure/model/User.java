@@ -31,7 +31,9 @@ public class User {
             }
             connection.commit();
             return new User(id, username, password, isVendor ? 1 : 0);
-        } catch (SQLException e) {
+        } catch (IllegalArgumentException e) {
+            return null;
+        } catch (Exception e) {
             connection.rollback();
             throw e;
         }
@@ -49,8 +51,6 @@ public class User {
             } else {
                 return null;
             }
-        } catch (SQLException e) {
-            throw e;
         } finally {
             connection.rollback();
         }
@@ -66,8 +66,6 @@ public class User {
             } else {
                 return null;
             }
-        } catch (SQLException e) {
-            throw e;
         } finally {
             connection.rollback();
         }

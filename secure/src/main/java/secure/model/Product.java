@@ -61,9 +61,8 @@ public class Product implements Serializable {
             } else {
                 return null;
             }
-        } catch (Exception e) {
+        } finally {
             connection.rollback();
-            throw e;
         }
     }
 
@@ -79,9 +78,8 @@ public class Product implements Serializable {
                         results.getString("user_id")));
             }
             return products;
-        } catch (Exception e) {
+        } finally {
             connection.rollback();
-            throw e;
         }
     }
 
@@ -97,9 +95,8 @@ public class Product implements Serializable {
                         results.getString("user_id")));
             }
             return products;
-        } catch (Exception e) {
+        } finally {
             connection.rollback();
-            throw e;
         }
     }
 
@@ -114,9 +111,8 @@ public class Product implements Serializable {
                         results.getString("user_id")));
             }
             return products;
-        } catch (Exception e) {
+        } finally {
             connection.rollback();
-            throw e;
         }
     }
 }

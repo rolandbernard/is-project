@@ -4,31 +4,34 @@
 <head th:replace="~{fragments/layout :: head(title=${title})}">
 </head>
 
-<body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
     <header th:replace="~{fragments/layout :: header}"></header>
-    <div class="container">
-        <div class="d-flex justify-content-between mb-3 align-items-center">
-            <h1 th:utext="${title}">
-            </h1>
-            <div th:if="${user.isVendor}">
-                <a href="/product/create" class="btn btn-primary ml-2 d-inline-block">Create a new product</a>
+    <div style="flex: 1 1 max-content">
+        <div class="container">
+            <div class="d-flex justify-content-between mb-3 align-items-center">
+                <h1 th:utext="${title}">
+                </h1>
+                <div th:if="${user.isVendor}">
+                    <a href="/product/create" class="btn btn-primary ml-2 d-inline-block">Create a new product</a>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <form action="/product/search" method="GET">
-                    <div class="input-group mb-3">
-                        <input type="search" class="form-control" placeholder="Search" name="keyword" th:value="${keyword}">
-                        <div class="input-group-append ml-2">
-                            <button class="btn btn-outline-secondary" type="submit">Search</button>
+            <div class="row">
+                <div class="col-md-6">
+                    <form action="/product/search" method="GET">
+                        <div class="input-group mb-3">
+                            <input type="search" class="form-control" placeholder="Search" name="keyword"
+                                th:value="${keyword}">
+                            <div class="input-group-append ml-2">
+                                <button class="btn btn-outline-secondary" type="submit">Search</button>
+                            </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4" th:each="product : ${products}">
-                <div th:replace="~{fragments/product :: product-card(product=${product})}">
+            <div class="row">
+                <div class="col-md-4" th:each="product : ${products}">
+                    <div th:replace="~{fragments/product :: product-card(product=${product})}">
+                    </div>
                 </div>
             </div>
         </div>

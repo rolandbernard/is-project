@@ -46,6 +46,27 @@ public class Hash {
         return ((x % n) + n) % n;
     }
 
+    /**
+     * Implementation of the Balloon hashing algorithm based on the algorithm
+     * presented in BONEH, Dan; CORRIGAN-GIBBS, Henry; SCHECHTER, Stuart. Balloon
+     * hashing: A memory-hard function providing provable protection against
+     * sequential attacks. In: Advances in Cryptology–ASIACRYPT 2016: 22nd
+     * International Conference on the Theory and Application of Cryptology and
+     * Information Security, Hanoi, Vietnam, December 4-8, 2016, Proceedings, Part I
+     * 22. Springer Berlin Heidelberg, 2016. p. 220-248.
+     *
+     * @param passwd
+     *            The password to be hashed.
+     * @param salt
+     *            The salt to hash with.
+     * @param spaceCost
+     *            The value regulating the amount of space required.
+     * @param timeCost
+     *            The value regulating the amount of time required.
+     * @param length
+     *            The length of the output hash.
+     * @return The resulting hash.
+     */
     private static byte[] balloon(byte[] passwd, byte[] salt, int spaceCost, int timeCost, int length) {
         int delta = 3;
         int cnt = 0;

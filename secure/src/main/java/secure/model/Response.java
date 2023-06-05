@@ -43,7 +43,7 @@ public class Response {
             statement.execute();
             connection.commit();
             return new Response(uuid, reviewId, userId, comment, timestamp);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             connection.rollback();
             throw e;
         }

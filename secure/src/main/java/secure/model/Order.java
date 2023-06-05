@@ -42,7 +42,7 @@ public class Order implements Serializable {
             statement.execute();
             connection.commit();
             return new Order(uuid, productId, user.id, timeStamp, true);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             connection.rollback();
             throw e;
         }

@@ -40,7 +40,7 @@ public class Message {
             }
             connection.commit();
             return new Message(id, senderId, receiverId, message, LocalDateTime.now());
-        } catch (SQLException e) {
+        } catch (Exception e) {
             connection.rollback();
             throw e;
         }

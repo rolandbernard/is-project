@@ -44,7 +44,7 @@ public class Review {
             statement.execute();
             connection.commit();
             return new Review(uuid, userId, productId, rating, comment, timestamp);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             connection.rollback();
             throw e;
         }

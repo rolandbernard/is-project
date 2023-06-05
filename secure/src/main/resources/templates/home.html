@@ -4,11 +4,37 @@
 <head th:replace="~{fragments/layout :: head}" th:with="title='Home'">
 </head>
 
-<body style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
     <header th:replace="~{fragments/layout :: header}"></header>
-    <div>
+    <div style="flex: 1 1 max-content">
         <div class="container">
-            <h1>Home</h1>
+            <h1>Your Home at eCommerce</h1>
+            <p>A <b>secure</b> website for placing orders, posting reviews, and communication between vendors and
+                customers.</p>
+            <hr>
+            <div class="container">
+                <h2>Orders</h2>
+                <table class="table table-bordered">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Product</th>
+                        <th th:text="${user.isVendor ? 'Customer' : 'Vendor'}"></th>
+                        <th>Date</th>
+                        <th>Verified</th>
+                    </tr>
+                    <div th:each="order : ${orders}">
+                        <tr th:replace="~{fragments/order :: order-item(order=${order})}"></tr>
+                    </div>
+                </table>
+            </div>
+            <div class="container mt-5">
+                <h2>Chats</h2>
+                <div th:each="message : ${messages}">
+                    <div
+                        th:replace="~{fragments/chat :: chat-item(message=${message.message.message}, sender=${message.sender}, user=${message.receiver.id == user.id ? message.sender : message.receiver })}">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <footer th:replace="~{fragments/layout :: footer}"></footer>

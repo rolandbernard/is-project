@@ -1,1 +1,20 @@
-Error
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head}" th:with="title='Welcome'">
+</head>
+
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
+    <header th:replace="~{fragments/layout :: header}"></header>
+    <div class="d-flex justify-content-center align-items-center" style="flex: 1 1 max-content">
+        <div class="container w-50">
+            <h1>Oops! We could not fulfil your request.</h1>
+            <p class="fs-4">An error occurred during the handing of your request. We apologize for the inconvenience.
+                Please try again later or contact customer support team.</p>
+            <p>Your eCommerce team.</p>
+        </div>
+    </div>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+
+</html>

@@ -47,7 +47,7 @@ public class Message {
             return new Message(uuid, sender.id, receiverId, message, timestamp);
         } catch (UnsupportedEncodingException e) {
             throw Utils.panic(e);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             connection.rollback();
             throw e;
         }

@@ -37,7 +37,7 @@ public class Order implements Serializable {
             }
             connection.commit();
             return new Order(id, productId, userId, LocalDateTime.now());
-        } catch (SQLException e) {
+        } catch (Exception e) {
             connection.rollback();
             throw e;
         }

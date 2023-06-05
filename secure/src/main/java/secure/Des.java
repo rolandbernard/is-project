@@ -69,6 +69,15 @@ public class Des {
             31, 63, 23, 55, 15, 47, 7, 39
     };
 
+    /**
+     * @param value
+     *            The value that should be rotated:
+     * @param shift
+     *            The number of bits by which to rotate;
+     * @param bits
+     *            The number of bits at which to wrap.
+     * @return The rotated number.
+     */
     private static long rotateLeft(long value, int shift, int bits) {
         return ((value << shift) | (value >>> (bits - shift))) & ((1 << bits) - 1);
     }
