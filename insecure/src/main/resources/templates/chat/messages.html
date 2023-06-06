@@ -1,7 +1,7 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/layout :: head(title='Chat')}">
+<head th:replace="~{fragments/layout :: head(title=${otherUser.username})}">
 </head>
 
 <body style="min-height: 100vh; display: flex; flex-direction: column;">

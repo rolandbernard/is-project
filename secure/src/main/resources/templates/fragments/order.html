@@ -20,7 +20,7 @@
                 <span th:if="${order.order.isValid}" title="This order has been digitally signed">
                     ✅
                 </span>
-                <span th:if="${!order.order.isValid}" title="This order has no valid signature">
+                <span th:if="${!order.order.isValid}" title="This order is missing a valid signature">
                     ❌
                 </span>
             </td>
