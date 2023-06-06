@@ -74,7 +74,7 @@ public class Order implements Serializable {
             var result = statement.executeQuery(
                     "SELECT `order`.id, product_id, `order`.user_id, `order`.created_at, name, price, username, password, is_vendor "
                             + "FROM `order` JOIN product ON (product_id = product.id) "
-                            + "JOIN user ON (`order`.user_id = user.id) WHERE `product`.user_id = "
+                            + "JOIN user ON (`order`.user_id = user.id) WHERE product.user_id = "
                             + userId + " ORDER BY `order`.created_at DESC");
             var orders = new ArrayList<OrderProductUser>();
             while (result.next()) {

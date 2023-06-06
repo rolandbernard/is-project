@@ -8,11 +8,17 @@
     <header th:replace="~{fragments/layout :: header}"></header>
     <div class="d-flex align-items-center justify-content-center" style="flex: 1 1 max-content">
         <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-4">
-                    <h1>You have successfully placed an order!</h1>
-                </div>
-            </div>
+            <h1>You have successfully placed an order!</h1>
+            <table class="mt-5 table table-bordered">
+                <tr>
+                    <th>Order ID</th>
+                    <th>Product</th>
+                    <th th:text="${user.isVendor ? 'Customer' : 'Vendor'}"></th>
+                    <th>Date</th>
+                    <th>Verified</th>
+                </tr>
+                <tr th:replace="~{fragments/order :: order-item(order=${order})}"></tr>
+            </table>
         </div>
     </div>
     <footer th:replace="~{fragments/layout :: footer}"></footer>

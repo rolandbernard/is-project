@@ -8,18 +8,52 @@
     <header th:replace="~{fragments/layout :: header}"></header>
     <div style="flex: 1 1 max-content">
         <div class="container d-flex flex-column">
-            <h1 th:text="${product.product.name}">
+            <div th:if="${product.product.image != null}">
+                <a href="#imageModeal" type="" class="" data-bs-toggle="modal" data-bs-target="#imageModal">
+                    <img th:src="'/product/' + ${product.product.id} + '/image'" class="rounded-top"
+                        style="width: 100%; max-height: 15rem; object-fit: cover;" alt="">
+                </a>
+                <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="imageModalLabel" th:text="${product.product.name}"></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <img th:src="'/product/' + ${product.product.id} + '/image'" class="img-fluid" alt="">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h1 class="mb-0 mt-3" th:text="${product.product.name}">
             </h1>
-            <a th:href="'/chat/' + ${product.vendor.id}" th:text="${product.vendor.username}"
-                th:if="${!user.isVendor}"></a>
-            <div th:text="${product.vendor.username}" th:if="${user.isVendor}"></div>
-            <div th:text="${#numbers.formatDecimal(product.product.price / 100, 1, 2)} +  ' €'"></div>
-            <form method="post" th:action="'/order/create/' + ${product.product.id}" th:if="${!user.isVendor}">
-                <input type="hidden" name="csrf-token" th:value="${csrfToken}">
-                <button class="btn btn-primary" type="submit"
-                    onclick="return confirm('Are you sure you want to buy this product?')">Buy</button>
-            </form>
-            <h4 class="mt-5">Reviews</h4>
+            <div>
+                created at <span th:text="${#temporals.format(product.product.createdAt, 'dd.MM.yyyy, HH:mm')}"></span>
+                by
+                <a th:href="'/chat/' + ${product.vendor.id}" th:text="${product.vendor.username}"
+                    th:if="${!user.isVendor}"></a>
+                <span th:text="${product.vendor.username}" th:if="${user.isVendor}"></span>
+            </div>
+            <div class="mt-3">
+                <form method="post" th:action="'/order/create/' + ${product.product.id}">
+                    <input type="hidden" name="csrf-token" th:value="${csrfToken}">
+                    <button class="btn btn-primary align-middle" type="submit" th:if="${!user.isVendor}"
+                        onclick="return confirm('Are you sure you want to buy this product?')">Buy</button>
+                    <span class="ms-3 fs-4 fw-medium align-middle"
+                        th:text="${#numbers.formatDecimal(product.product.price / 100.0, 1, 2)} +  ' €'"></span>
+                </form>
+            </div>
+            <div class="mt-4" th:text="${product.product.description}">
+            </div>
+            <h4 class="mt-5" th:if="${reviews != null && reviews.size() > 0}">Reviews</h4>
+            <h4 class="mt-5" th:if="${reviews == null || reviews.size() == 0}">No reviews yet</h4>
             <div th:if="${!user.isVendor && !hasReviewed && hasBought}">
                 <form method="post" class="d-flex flex-column"
                     th:action="'/product/' + ${product.product.id} + '/review'" style="gap: 10px">
@@ -51,7 +85,8 @@
                 <div class="card ms-5" th:each="response : ${review.responses}">
                     <div class="card-body">
                         <h5 class="card-title" th:text="${response.user.username}"></h5>
-                        <h6 class="card-subtitle mb-2 text-body-secondary" th:text="${response.response.comment}"></h6>
+                        <h6 class="card-subtitle mb-2 text-body-secondary" th:text="${response.response.comment}">
+                        </h6>
                         <p class="card-text"
                             th:text="${#temporals.format(response.response.createdAt, 'dd.MM.yyyy, HH:mm')}">
                         </p>

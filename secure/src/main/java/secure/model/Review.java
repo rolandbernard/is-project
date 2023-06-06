@@ -50,6 +50,22 @@ public class Review {
         }
     }
 
+    public static Review getReview(Database db, String reviewId) throws SQLException {
+        var connection = db.getConnection();
+        var sql = "SELECT review.id, user_id, product_id, rating, comment, review.created_at "
+                + "FROM review WHERE id = ?";
+        try (var statement = connection.prepareStatement(sql)) {
+            statement.setString(1, reviewId);
+            var result = statement.executeQuery();
+            if (result.next()) {
+                return new Review(result.getString("id"), result.getString("user_id"), result.getString("product_id"),
+                        result.getInt("rating"), result.getString("comment"), result.getLong("created_at"));
+            } else {
+                return null;
+            }
+        }
+    }
+
     public static List<ReviewUser> getForProduct(Database db, String productId) throws SQLException {
         var connection = db.getConnection();
         var sql = "SELECT review.id, user_id, product_id, rating, comment, review.created_at, username, password, is_vendor, rsa_public_key, dh_public_key "
@@ -66,8 +82,7 @@ public class Review {
                         new ReviewUser(
                                 new Review(result.getString("id"), result.getString("user_id"),
                                         result.getString("product_id"), result.getInt("rating"),
-                                        result.getString("comment"),
-                                        result.getLong("created_at")),
+                                        result.getString("comment"), result.getLong("created_at")),
                                 new User(result.getString("user_id"), result.getString("username"),
                                         result.getInt("is_vendor"), rsaPublicKey, dhPublicKey)));
             }

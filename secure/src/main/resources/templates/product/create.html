@@ -14,7 +14,7 @@
                     <div th:each="error : ${errors}" th:if="${errors != null && errors.size() > 0}">
                         <p class="alert alert-danger text-center" th:text="${error}"></p>
                     </div>
-                    <form action="/product/create" method="post">
+                    <form action="/product/create" enctype="multipart/form-data" method="post">
                         <div class="mb-3">
                             <label for="name" class="form-label">Name</label>
                             <input type="text" name="name" class="form-control" id="name">
@@ -22,6 +22,16 @@
                         <div class="mb-3">
                             <label for="price" class="form-label">Price (€)</label>
                             <input type="text" name="price" class="form-control" id="price">
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control mb-2" name="description" rows="3"
+                                placeholder="Write a description" id="description"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Image</label>
+                            <input class="form-control" type="file" id="image" name="image"
+                                accept="image/png, image/jpeg">
                         </div>
                         <input type="hidden" name="csrf-token" th:value="${csrfToken}">
                         <div class="d-grid gap-2 mt-4">

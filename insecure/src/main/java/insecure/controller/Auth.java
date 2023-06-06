@@ -3,7 +3,6 @@ package insecure.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import insecure.Database;
 import insecure.model.*;
@@ -19,8 +18,7 @@ public class Auth {
     }
 
     @GetMapping("/logout")
-    public String getLogout(Model model, HttpServletRequest request, HttpServletResponse response,
-            RedirectAttributes ra) {
+    public String getLogout(Model model, HttpServletRequest request, HttpServletResponse response) {
         var cookies = request.getCookies();
         for (var cookie : cookies) {
             if (cookie.getName().equals("user-id")) {
@@ -43,8 +41,8 @@ public class Auth {
     @PostMapping("/login")
     public String postLogin(@RequestParam(value = "username") String username,
             @RequestParam(value = "password") String password,
-            @RequestParam(value = "origin", required = false) String origin, Model model, HttpServletResponse response,
-            RedirectAttributes ra) throws Exception {
+            @RequestParam(value = "origin", required = false) String origin, Model model, HttpServletResponse response)
+            throws Exception {
         model.addAttribute("username", username);
         try (var db = new Database()) {
             var user = User.getUser(db, username, password);
@@ -67,8 +65,8 @@ public class Auth {
     public String postRegister(@RequestParam(value = "username") String username,
             @RequestParam(value = "password") String password,
             @RequestParam(value = "password-repeat") String passwordRepeat,
-            @RequestParam(defaultValue = "false") boolean vendor, Model model, HttpServletResponse response,
-            RedirectAttributes ra) throws Exception {
+            @RequestParam(defaultValue = "false") boolean vendor, Model model, HttpServletResponse response)
+            throws Exception {
         model.addAttribute("username", username);
         if (!password.equals(passwordRepeat)) {
             model.addAttribute("error", "The two passwords are not equal");

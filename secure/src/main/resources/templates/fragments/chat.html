@@ -3,7 +3,8 @@
         <a th:href="'/chat/' + ${user.id}" class="card text-decoration-none">
             <div class="card-body">
                 <h2 th:text="${user.username}"></h2>
-                <div th:text="${sender.username} + ': ' + ${message}"></div>
+                <div th:text="${sender.username} + ': ' + ${message.message}"></div>
+                <div style="font-size: x-small;" th:text="${#temporals.format(message.createdAt, 'dd.MM.yyyy, HH:mm')}"></div>
             </div>
         </a>
     </div>

@@ -1,11 +1,19 @@
 <body>
     <div th:fragment="product-card">
         <a class="card mb-3 text-decoration-none" th:href="'/product/' + ${product.id}">
+            <img th:src="'/product/' + ${product.id} + '/image'" class="card-img-top"
+                style="height: 3rem; object-fit: cover;" alt="" th:if="${product.image != null}">
+            <div class="card-img-top bg-primary" style="height: 3rem; object-fit: cover;" alt=""
+                th:if="${product.image == null}"></div>
             <div class="card-body">
                 <h2 class="card-title">
                     <span th:text="${product.name}"></span>
                 </h2>
-                <div class="card-subtitle mb-2 text-body-secondary" th:text="${#numbers.formatDecimal(product.price / 100, 1, 2)} +  ' €'">Card subtitle
+                <div class="card-subtitle mb-2 text-body-secondary"
+                    th:text="${#numbers.formatDecimal(product.price / 100.0, 1, 2)} +  ' €'">
+                </div>
+                <div class="card-subtitle mb-2 text-body-secondary"
+                    th:text="${#strings.abbreviate(product.description, 150)}">
                 </div>
             </div>
         </a>

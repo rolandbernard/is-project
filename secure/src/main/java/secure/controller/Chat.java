@@ -2,7 +2,6 @@ package secure.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.*;
 import secure.Database;
@@ -26,13 +25,13 @@ class Chat {
     @GetMapping("/{otherId}")
     public String chat(@PathVariable String otherId, HttpServletRequest request, Model model) throws Exception {
         User user = (User) request.getAttribute("user");
+        if (user.id.equals(otherId)) {
+            return "redirect:/chat";
+        }
         try (Database db = new Database()) {
             User otherUser = User.getUser(db, otherId);
             if (user.isVendor == otherUser.isVendor) {
-                throw new Exception("Only Customer and Vendor can have a chat");
-            }
-            if (user.id.equals(otherId)) {
-                throw new Exception("You cannot send message to yourself");
+                return "redirect:/chat";
             }
             var messages = Message.getBetween(db, user, otherId);
             model.addAttribute("messages", messages);
@@ -43,15 +42,15 @@ class Chat {
 
     @PostMapping("/{otherId}")
     public String chat(@PathVariable String otherId, @RequestParam String message, HttpServletRequest request,
-            Model model, RedirectAttributes ra) throws Exception {
+            Model model) throws Exception {
         User user = (User) request.getAttribute("user");
+        if (user.id.equals(otherId)) {
+            return "redirect:/chat";
+        }
         try (Database db = new Database()) {
             User otherUser = User.getUser(db, otherId);
             if (user.isVendor == otherUser.isVendor) {
-                throw new Exception("Only Customer and Vendor can send messages");
-            }
-            if (user.id.equals(otherId)) {
-                throw new Exception("You cannot send message to yourself");
+                return "redirect:/chat";
             }
             Message.create(db, user, otherId, message);
             return "redirect:/chat/" + otherId;

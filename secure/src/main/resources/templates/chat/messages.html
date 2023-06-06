@@ -19,6 +19,7 @@
                             th:class="${message.sender.id == user.id ? 'card bg-primary text-white' : 'card bg-light'}">
                             <div class="py-2 px-3 mb-0" th:text="${message.message.message}"></div>
                         </div>
+                        <div style="font-size: x-small;" th:text="${#temporals.format(message.message.createdAt, 'dd.MM.yyyy, HH:mm')}"></div>
                     </div>
                 </div>
             </div>

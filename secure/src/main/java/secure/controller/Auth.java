@@ -5,7 +5,6 @@ import java.util.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.*;
 import secure.*;
@@ -15,8 +14,7 @@ import secure.model.*;
 @RequestMapping("/auth")
 public class Auth {
     @GetMapping("/logout")
-    public String getLogout(Model model, HttpServletRequest request, HttpServletResponse response,
-            RedirectAttributes ra) {
+    public String getLogout(Model model, HttpServletRequest request, HttpServletResponse response) {
         var session = request.getSession();
         session.removeAttribute("user");
         return "redirect:/auth/login";
@@ -32,7 +30,7 @@ public class Auth {
     @PostMapping("/login")
     public String postLogin(HttpSession session, @RequestParam("csrf-token") String csrfToken,
             @RequestParam String username, @RequestParam String password, @RequestParam(required = false) String origin,
-            Model model, HttpServletRequest request, RedirectAttributes ra) throws Exception {
+            Model model, HttpServletRequest request) throws Exception {
         model.addAttribute("username", username);
         try (var db = new Database()) {
             var user = User.getUser(db, username, password);
@@ -54,8 +52,8 @@ public class Auth {
     @PostMapping("/register")
     public String postRegister(HttpSession session, @RequestParam String username, @RequestParam String password,
             @RequestParam("password-repeat") String passwordRepeat,
-            @RequestParam(defaultValue = "false") boolean vendor, Model model, HttpServletRequest request,
-            RedirectAttributes ra) throws Exception {
+            @RequestParam(defaultValue = "false") boolean vendor, Model model, HttpServletRequest request)
+            throws Exception {
         model.addAttribute("username", username);
         try (var db = new Database()) {
             var errors = validateUsername(username);
@@ -83,9 +81,9 @@ public class Auth {
     }
 
     @PostMapping("/password")
-    public String postPassword(HttpSession session, @RequestParam String password,
-            @RequestParam("new-password") String newPassword, @RequestParam("password-repeat") String passwordRepeat,
-            Model model, HttpServletRequest request, RedirectAttributes ra) throws Exception {
+    public String postPassword(HttpSession session, @RequestParam("old-password") String password,
+            @RequestParam("password") String newPassword, @RequestParam("password-repeat") String passwordRepeat,
+            Model model, HttpServletRequest request) throws Exception {
         var user = (User) request.getAttribute("user");
         try (var db = new Database()) {
             var errors = validatePassword(newPassword, passwordRepeat);

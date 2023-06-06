@@ -2,7 +2,6 @@ package insecure.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -37,8 +36,8 @@ class Chat {
     }
 
     @PostMapping("/{otherId}")
-    public String chat(@PathVariable int otherId, @RequestParam String message, HttpServletRequest request, Model model,
-            RedirectAttributes ra) throws Exception {
+    public String chat(@PathVariable int otherId, @RequestParam String message, HttpServletRequest request, Model model)
+            throws Exception {
         try (Database db = new Database()) {
             User user = (User) request.getAttribute("user");
             Message.create(db, user.id, otherId, message);

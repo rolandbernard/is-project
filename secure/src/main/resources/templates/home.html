@@ -31,7 +31,7 @@
                 <h2>Chats</h2>
                 <div th:each="message : ${messages}">
                     <div
-                        th:replace="~{fragments/chat :: chat-item(message=${message.message.message}, sender=${message.sender}, user=${message.receiver.id == user.id ? message.sender : message.receiver })}">
+                        th:replace="~{fragments/chat :: chat-item(message=${message.message}, sender=${message.sender}, user=${message.receiver.id == user.id ? message.sender : message.receiver })}">
                     </div>
                 </div>
             </div>

@@ -19,8 +19,9 @@ public class Home {
         }
         try (Database db = new Database()) {
             var messages = Message.getLastInvolving(db, user);
-            model.addAttribute("messages", messages);
-            model.addAttribute("orders", user.isVendor ? Order.getForUser(db, user.id) : Order.getByUser(db, user.id));
+            model.addAttribute("messages", messages.subList(0, Integer.min(10, messages.size())));
+            var orders = user.isVendor ? Order.getForUser(db, user) : Order.getByUser(db, user);
+            model.addAttribute("orders", orders.subList(0, Integer.min(10, orders.size())));
             model.addAttribute("title", user.isVendor ? "Orders for me" : "My Orders");
         }
         return "home";

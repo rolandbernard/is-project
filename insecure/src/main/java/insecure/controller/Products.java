@@ -3,7 +3,6 @@ package insecure.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import insecure.model.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +19,7 @@ public class Products {
 
     @PostMapping("/create")
     public String postCreate(@RequestParam String name, @RequestParam("price") String priceString, Model model,
-            HttpServletRequest request, RedirectAttributes ra) throws Exception {
+            HttpServletRequest request) throws Exception {
         User user = (User) request.getAttribute("user");
         try (var db = new Database()) {
             try {
@@ -69,7 +68,7 @@ public class Products {
 
     @PostMapping("/{productId}/review/{reviewId}/response")
     public String postResponse(@PathVariable int productId, @PathVariable int reviewId, @RequestParam String comment,
-            HttpServletRequest request, RedirectAttributes ra) throws Exception {
+            HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
             Response.create(db, reviewId, user.id, comment);
@@ -79,7 +78,7 @@ public class Products {
 
     @PostMapping("/{id}/review")
     public String postReview(@PathVariable int id, @RequestParam String comment, @RequestParam() int rating,
-            Model model, HttpServletRequest request, RedirectAttributes ra) throws Exception {
+            Model model, HttpServletRequest request) throws Exception {
         try (var db = new Database()) {
             User user = (User) request.getAttribute("user");
             var product = Product.getProduct(db, id).product();

@@ -28,19 +28,21 @@ public class Utils {
      * @throws NumberFormatException
      *             If the number can not be parsed.
      */
-    public static int parseNumber(String number) throws NumberFormatException {
+    public static long parseNumber(String number) throws NumberFormatException {
+        var lastComma = number.lastIndexOf(',');
+        var lastDot = number.lastIndexOf('.');
         var splitComma = number.split(",");
         var splitPoint = number.split("\\.");
-        if (splitComma.length == 2 && splitPoint.length != 2) {
-            return Integer.parseInt("0" + String.join("", splitComma[0].replaceAll("\\.", ""))) * 100
-                    + Integer.parseInt(String.join("", (splitComma[1].replaceAll("\\.", "") + "00").substring(0, 2)));
-        } else if (splitPoint.length == 2 && splitComma.length != 2) {
-            return Integer.parseInt("0" + String.join("", splitPoint[0].replaceAll(",", ""))) * 100
-                    + Integer.parseInt(String.join("", (splitPoint[1].replaceAll(",", "") + "00").substring(0, 2)));
+        if (lastComma > lastDot && splitComma.length == 2 && splitPoint.length != 2) {
+            return Long.parseLong("0" + splitComma[0].replaceAll("\\.", "")) * 100
+                    + Long.parseLong((splitComma[1].replaceAll("\\.", "") + "00").substring(0, 2));
+        } else if (lastDot > lastComma && splitPoint.length == 2 && splitComma.length != 2) {
+            return Long.parseLong("0" + splitPoint[0].replaceAll(",", "")) * 100
+                    + Long.parseLong((splitPoint[1].replaceAll(",", "") + "00").substring(0, 2));
         } else if (splitComma.length == 1) {
-            return Integer.parseInt(String.join("", splitPoint)) * 100;
+            return Long.parseLong(String.join("", splitPoint)) * 100;
         } else if (splitPoint.length == 1) {
-            return Integer.parseInt(String.join("", splitComma)) * 100;
+            return Long.parseLong(String.join("", splitComma)) * 100;
         } else {
             throw new NumberFormatException();
         }

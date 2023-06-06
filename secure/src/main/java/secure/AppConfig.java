@@ -9,6 +9,7 @@ import secure.middleware.*;
 public class AppConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new ClearModelOnRedirect());
         registry.addInterceptor(new CheckCsrfToken());
         registry.addInterceptor(new PerformAuth());
         registry.addInterceptor(new RejectAuth())

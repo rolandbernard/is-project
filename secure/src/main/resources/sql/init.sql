@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `product` (
     `id` char(36) PRIMARY KEY,
     `name` varchar(255) NOT NULL,
     `price` integer NOT NULL,
+    `description` text NOT NULL,
     `image` blob,
     `user_id` char(36) NOT NULL,
     `created_at` integer NOT NULL,

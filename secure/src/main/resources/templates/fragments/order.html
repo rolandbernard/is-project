@@ -5,7 +5,7 @@
                 #<span th:text="${order.order.id.substring(0, 4)}"></span>
             </td>
             <td>
-                <span th:text="${order.product.name}"></span>
+                <a th:href="@{/product/{id}(id=${order.product.id})}" th:text="${order.product.name}"><a>
             </td>
             <td>
                 <span th:text="${order.user.username}" th:if="${user.isVendor}"></span>
