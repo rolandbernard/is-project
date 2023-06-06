@@ -12,8 +12,7 @@ public class AppConfig implements WebMvcConfigurer {
         registry.addInterceptor(new ClearModelOnRedirect());
         registry.addInterceptor(new CheckCsrfToken());
         registry.addInterceptor(new PerformAuth());
-        registry.addInterceptor(new RejectAuth())
-                .addPathPatterns("/auth/login", "/auth/register");
+        registry.addInterceptor(new RejectAuth()).addPathPatterns("/auth/register");
         registry.addInterceptor(new RequireAuth()).excludePathPatterns("/auth/login", "/auth/register", "/public/**",
                 "/");
     }

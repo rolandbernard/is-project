@@ -1,5 +1,7 @@
 package secure.controller;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import org.springframework.stereotype.Controller;
@@ -22,7 +24,15 @@ public class Auth {
 
     @GetMapping("/login")
     public String getLogin(HttpSession session, Model model, HttpServletRequest request) {
+        var user = (User) request.getAttribute("user");
         String origin = request.getParameter("origin");
+        if (user != null) {
+            if (validateOriginRedirect(origin)) {
+                return "redirect:" + origin;
+            } else {
+                return "redirect:/";
+            }
+        }
         model.addAttribute("origin", origin);
         return "auth/login";
     }
@@ -41,7 +51,11 @@ public class Auth {
                 return "auth/login";
             }
             setAuthSession(request, user);
-            return "redirect:" + (origin == null || origin.isBlank() ? "/" : origin);
+            if (validateOriginRedirect(origin)) {
+                return "redirect:" + origin;
+            } else {
+                return "redirect:/";
+            }
         }
     }
 
@@ -104,6 +118,24 @@ public class Auth {
     private static void setAuthSession(HttpServletRequest request, User user) {
         var session = request.getSession();
         session.setAttribute("user", user);
+    }
+
+    /**
+     * Validate the origin redirect after successful login. Allow only absolute redirects inside this application.
+     *
+     * @param origin the utl to validate
+     * @return true if redirect is allowed, false otherwise.
+     */
+    private static boolean validateOriginRedirect(String origin) {
+        try {
+            var uri = new URI(origin);
+            System.out.println(uri.getPath());
+            System.out.println(uri.getAuthority());
+            System.out.println(uri.getScheme());
+            return uri.getPath().startsWith("/") && uri.getAuthority() == null && uri.getScheme() == null;
+        } catch (URISyntaxException | NullPointerException e) {
+            return false;
+        }
     }
 
     /**
