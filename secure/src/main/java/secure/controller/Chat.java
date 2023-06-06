@@ -30,7 +30,7 @@ class Chat {
         }
         try (Database db = new Database()) {
             User otherUser = User.getUser(db, otherId);
-            if (user.isVendor == otherUser.isVendor) {
+            if (otherUser == null || user.isVendor == otherUser.isVendor) {
                 return "redirect:/chat";
             }
             var messages = Message.getBetween(db, user, otherId);
@@ -49,7 +49,7 @@ class Chat {
         }
         try (Database db = new Database()) {
             User otherUser = User.getUser(db, otherId);
-            if (user.isVendor == otherUser.isVendor) {
+            if (otherUser == null || user.isVendor == otherUser.isVendor) {
                 return "redirect:/chat";
             }
             Message.create(db, user, otherId, message);

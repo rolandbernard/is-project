@@ -28,20 +28,20 @@ public class Order implements Serializable {
         this.isValid = isValid;
     }
 
-    public static Order create(Database db, String productId, User user) throws SQLException {
+    public static Order create(Database db, Product product, User user) throws SQLException {
         var connection = db.getConnection();
         var sql = "INSERT INTO `order` (id, product_id, user_id, signature, created_at) VALUES (?, ?, ?, ?, ?)";
         try (var statement = connection.prepareStatement(sql)) {
             var timeStamp = System.currentTimeMillis();
             var uuid = Utils.newUuid();
             statement.setString(1, uuid);
-            statement.setString(2, productId);
+            statement.setString(2, product.id);
             statement.setString(3, user.id);
-            statement.setBytes(4, createSignature(user, uuid, productId, timeStamp));
+            statement.setBytes(4, createSignature(user, uuid, product, timeStamp));
             statement.setLong(5, timeStamp);
             statement.execute();
             connection.commit();
-            return new Order(uuid, productId, user.id, timeStamp, true);
+            return new Order(uuid, product.id, user.id, timeStamp, true);
         } catch (Exception e) {
             connection.rollback();
             throw e;
@@ -69,7 +69,7 @@ public class Order implements Serializable {
                 var seller = new User(result.getString("user_id"), result.getString("username"),
                         result.getInt("is_vendor"), RsaKey.fromByteArray(result.getBytes("rsa_public_key")),
                         DhKey.fromByteArray(result.getBytes("dh_public_key")));
-                var isValid = validateSignature(orderId, buyer, product.id, createdAt, signature);
+                var isValid = validateSignature(orderId, buyer, product, createdAt, signature);
                 return new OrderProductUser(new Order(orderId, product.id, buyer.id, createdAt, isValid), product,
                         seller);
             } else {
@@ -100,7 +100,7 @@ public class Order implements Serializable {
                 var seller = new User(result.getString("user_id"), result.getString("username"),
                         result.getInt("is_vendor"), RsaKey.fromByteArray(result.getBytes("rsa_public_key")),
                         DhKey.fromByteArray(result.getBytes("dh_public_key")));
-                var isValid = validateSignature(orderId, buyer, product.id, createdAt, signature);
+                var isValid = validateSignature(orderId, buyer, product, createdAt, signature);
                 orders.add(new OrderProductUser(new Order(orderId, product.id, buyer.id, createdAt, isValid), product,
                         seller));
             }
@@ -130,7 +130,7 @@ public class Order implements Serializable {
                 var buyer = new User(result.getString("user_id"), result.getString("username"),
                         result.getInt("is_vendor"), RsaKey.fromByteArray(result.getBytes("rsa_public_key")),
                         DhKey.fromByteArray(result.getBytes("dh_public_key")));
-                var isValid = validateSignature(orderId, buyer, product.id, createdAt, signature);
+                var isValid = validateSignature(orderId, buyer, product, createdAt, signature);
                 orders.add(new OrderProductUser(new Order(orderId, product.id, buyer.id, createdAt, isValid), product,
                         buyer));
             }
@@ -149,18 +149,31 @@ public class Order implements Serializable {
         }
     }
 
-    private static byte[] createSignature(User user, String orderId, String productId, long createdAt) {
-        var signatureString = createSignatureString(orderId, user, productId, createdAt);
+    private static byte[] createSignature(User user, String orderId, Product product, long createdAt) {
+        var signatureString = createSignatureDocument(orderId, user, product, createdAt);
         return Rsa.sign(signatureString, user.rsaPrivateKey);
     }
 
-    private static boolean validateSignature(String orderId, User buyer, String productId, long createdAt,
+    private static boolean validateSignature(String orderId, User buyer, Product product, long createdAt,
             byte[] signature) {
-        var signatureString = createSignatureString(orderId, buyer, productId, createdAt);
+        var signatureString = createSignatureDocument(orderId, buyer, product, createdAt);
         return Rsa.verify(signatureString, signature, buyer.rsaPublicKey);
     }
 
-    private static String createSignatureString(String orderId, User user, String productId, long createdAt) {
-        return orderId + "." + user.id + "." + productId + "." + createdAt;
+    private static String createSignatureDocument(String orderId, User user, Product product, long createdAt) {
+        return "order:\n"
+                + "  id: " + orderId + "\n"
+                + "  timestamp: " + createdAt + "\n"
+                + "  user:\n"
+                + "    id: " + user.id + "\n"
+                + "    username: " + user.username + "\n"
+                + "    rsaKey: " + Utils.base64Encode(user.rsaPublicKey.toByteArray()) + "\n"
+                + "    dhKey: " + Utils.base64Encode(user.dhPublicKey.toByteArray()) + "\n"
+                + "  product:\n"
+                + "    id: " + product.id + "\n"
+                + "    name: " + Utils.base64Encode(product.name.getBytes()) + "\n"
+                + "    price: " + product.price + "\n"
+                + "    description: " + Utils.base64Encode(product.description.getBytes()) + "\n"
+                + "    image: " + (product.image != null ? Utils.base64Encode(product.image) : "null") + "\n";
     }
 }

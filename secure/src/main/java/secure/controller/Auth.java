@@ -146,7 +146,7 @@ public class Auth {
         if (username.length() > 255) {
             errors.add("Username must be at most 255 characters long.");
         }
-        if (!username.matches("[ a-zA-Z0-9]+")) {
+        if (!username.matches("[._a-zA-Z0-9]+")) {
             errors.add("Username must only contain alphanumeric characters.");
         }
         if (username.matches(".*\\s.*")) {

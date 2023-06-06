@@ -77,7 +77,7 @@ public class Products {
         try (var db = new Database()) {
             var productVendor = Product.getProduct(db, id);
             if (productVendor == null) {
-                throw new Exception("Product not found");
+                return "redirect:/product/all";
             }
             var product = productVendor.product();
             var reviews = Response.getForProduct(db, product.id);
@@ -97,20 +97,10 @@ public class Products {
         try (var db = new Database()) {
             var productVendor = Product.getProduct(db, id);
             if (productVendor == null) {
-                throw new Exception("Product not found");
+                return null;
             }
             var product = productVendor.product();
             return product.image;
-        }
-    }
-
-    @GetMapping("/{id}/order")
-    public String getOrder(@PathVariable String id, Model model) throws Exception {
-        try (var db = new Database()) {
-            var productVendor = Product.getProduct(db, id);
-            var product = productVendor.product();
-            model.addAttribute("product", product);
-            return "product/order";
         }
     }
 
@@ -142,7 +132,7 @@ public class Products {
         try (var db = new Database()) {
             var product = Product.getProduct(db, id).product();
             if (product == null) {
-                throw new Exception("Product not found");
+                return "redirect:/product/" + id;
             }
             var hasBoughtProduct = Order.userBoughtProduct(db, user.id, id);
             if (!hasBoughtProduct) {

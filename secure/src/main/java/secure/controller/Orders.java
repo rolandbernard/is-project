@@ -19,7 +19,11 @@ public class Orders {
             return "redirect:/product/" + productId;
         }
         try (var db = new Database()) {
-            Order order = Order.create(db, productId, user);
+            var product = Product.getProduct(db, productId);
+            if (product == null) {
+                return "redirect:/product/" + productId;
+            }
+            Order order = Order.create(db, product.product(), user);
             return "redirect:/order/" + order.id;
         }
     }
@@ -31,7 +35,7 @@ public class Orders {
         try (var db = new Database()) {
             var order = Order.getOrder(db, user, productId);
             if (order == null) {
-                throw new Exception("Order not found");
+                return "redirect:/product/" + productId;
             }
             model.addAttribute("order", order);
             return "order/success";
