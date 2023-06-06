@@ -94,7 +94,7 @@ public class User {
     public static User getUser(Database db, String username, String password) throws Exception {
         var connection = db.getConnection();
         var sql = "SELECT id, username, password, salt, is_vendor, rsa_private_key, rsa_public_key, "
-                + "dh_private_key, dh_public_key FROM user WHERE username = ?";
+                + "dh_private_key, dh_public_key FROM user WHERE UPPER(username) = UPPER(?)";
         try (var statement = connection.prepareStatement(sql)) {
             statement.setString(1, username);
             var results = statement.executeQuery();
@@ -142,7 +142,7 @@ public class User {
 
     public static boolean isUsernameFree(Database db, String username) throws SQLException {
         var connection = db.getConnection();
-        var sql = "SELECT id FROM user WHERE username = ?";
+        var sql = "SELECT id FROM user WHERE UPPER(username) = UPPER(?)";
         try (var statement = connection.prepareStatement(sql)) {
             statement.setString(1, username);
             var results = statement.executeQuery();
