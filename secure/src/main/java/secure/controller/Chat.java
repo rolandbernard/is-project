@@ -2,6 +2,8 @@ package secure.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import jakarta.servlet.http.*;
 import secure.Database;
 import secure.model.*;
@@ -13,8 +15,8 @@ import org.springframework.ui.Model;
 class Chat {
     @GetMapping
     public String chats(HttpServletRequest request, HttpSession session, Model model) throws Exception {
+        User user = (User) request.getAttribute("user");
         try (Database db = new Database()) {
-            User user = (User) request.getAttribute("user");
             var messages = Message.getLastInvolving(db, user);
             model.addAttribute("messages", messages);
             return "chat/list";
@@ -23,8 +25,8 @@ class Chat {
 
     @GetMapping("/{otherId}")
     public String chat(@PathVariable String otherId, HttpServletRequest request, Model model) throws Exception {
+        User user = (User) request.getAttribute("user");
         try (Database db = new Database()) {
-            User user = (User) request.getAttribute("user");
             User otherUser = User.getUser(db, otherId);
             if (user.isVendor == otherUser.isVendor) {
                 throw new Exception("Only Customer and Vendor can have a chat");
@@ -41,9 +43,9 @@ class Chat {
 
     @PostMapping("/{otherId}")
     public String chat(@PathVariable String otherId, @RequestParam String message, HttpServletRequest request,
-            Model model) throws Exception {
+            Model model, RedirectAttributes ra) throws Exception {
+        User user = (User) request.getAttribute("user");
         try (Database db = new Database()) {
-            User user = (User) request.getAttribute("user");
             User otherUser = User.getUser(db, otherId);
             if (user.isVendor == otherUser.isVendor) {
                 throw new Exception("Only Customer and Vendor can send messages");

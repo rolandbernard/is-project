@@ -1,8 +1,11 @@
 package secure.controller;
 
+import java.util.ArrayList;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.*;
 import secure.Database;
@@ -19,19 +22,27 @@ public class Products {
 
     @PostMapping("/create")
     public String postCreate(@RequestParam String name, @RequestParam("price") String priceString, Model model,
-            HttpServletRequest request) throws Exception {
+            HttpServletRequest request, RedirectAttributes ra) throws Exception {
         User user = (User) request.getAttribute("user");
+        if (!user.isVendor) {
+            throw new Exception("Only vendors can create products");
+        }
         try (var db = new Database()) {
+            var errors = new ArrayList<String>();
+            if (name.length() > 255) {
+                errors.add("Product name must be at most 255 characters long");
+            }
+            int price = 0;
             try {
-                if (!user.isVendor) {
-                    throw new Exception("Only vendors can create products");
-                }
-                int price = Utils.parseNumber(priceString);
+                price = Utils.parseNumber(priceString);
+            } catch (NumberFormatException e) {
+                errors.add("Price must be a number");
+            }
+            if (errors.isEmpty()) {
                 var product = Product.create(db, name, price, user.id);
                 return "redirect:/product/" + product.id;
-            } catch (NumberFormatException e) {
-                model.addAttribute("error", "Price must be a number");
             }
+            model.addAttribute("errors", errors);
         }
         return "product/create";
     }
@@ -50,9 +61,9 @@ public class Products {
     @GetMapping("/{id}")
     public String get(@PathVariable String id, Model model, HttpSession session, HttpServletRequest request)
             throws Exception {
+        var user = (User) request.getAttribute("user");
         try (var db = new Database()) {
             var productVendor = Product.getProduct(db, id);
-            var user = (User) request.getAttribute("user");
             if (productVendor == null) {
                 throw new Exception("Product not found");
             }
@@ -81,9 +92,9 @@ public class Products {
 
     @PostMapping("/{productId}/review/{reviewId}/response")
     public String postResponse(@PathVariable String productId, @PathVariable String reviewId,
-            @RequestParam String comment, HttpServletRequest request) throws Exception {
+            @RequestParam String comment, HttpServletRequest request, RedirectAttributes ra) throws Exception {
+        User user = (User) request.getAttribute("user");
         try (var db = new Database()) {
-            User user = (User) request.getAttribute("user");
             Response.create(db, reviewId, user.id, comment);
             return "redirect:/product/" + productId;
         }
@@ -91,9 +102,9 @@ public class Products {
 
     @PostMapping("/{id}/review")
     public String postReview(@PathVariable String id, @RequestParam String comment, @RequestParam() int rating,
-            Model model, HttpServletRequest request) throws Exception {
+            Model model, HttpServletRequest request, RedirectAttributes ra) throws Exception {
+        User user = (User) request.getAttribute("user");
         try (var db = new Database()) {
-            User user = (User) request.getAttribute("user");
             var product = Product.getProduct(db, id).product();
             if (product == null) {
                 throw new Exception("Product not found");
@@ -113,13 +124,13 @@ public class Products {
     }
 
     @GetMapping("/my")
-    public String getMy(Model model, HttpServletRequest request) throws Exception {
+    public String getMy(Model model, HttpServletRequest request, RedirectAttributes ra) throws Exception {
+        User user = (User) request.getAttribute("user");
+        if (!user.isVendor) {
+            return "redirect:/product/all";
+        }
         try (var db = new Database()) {
-            User user = (User) request.getAttribute("user");
             var products = Product.getProducts(db, user.id);
-            if (!user.isVendor) {
-                return "redirect:/product/all";
-            }
             model.addAttribute("products", products);
             model.addAttribute("title", "My products");
             return "product/list";

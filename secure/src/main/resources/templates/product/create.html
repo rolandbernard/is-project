@@ -11,9 +11,8 @@
             <div class="row justify-content-center">
                 <div class="col-6">
                     <h1 class="text-center mb-3">Create a new product</h1>
-                    <div th:if="${error}">
-                        <p th:text="${error}" class="alert alert-danger text-center">
-                        </p>
+                    <div th:each="error : ${errors}" th:if="${errors != null && errors.size() > 0}">
+                        <p class="alert alert-danger text-center" th:text="${error}"></p>
                     </div>
                     <form action="/product/create" method="post">
                         <div class="mb-3">

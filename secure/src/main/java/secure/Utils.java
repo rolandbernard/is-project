@@ -56,64 +56,11 @@ public class Utils {
     }
 
     /**
-     * Validate password.
-     *
-     * @param password
-     * @param repeatPassword
-     * @return true if password is valid, false otherwise.
-     */
-    public static List<String> validatePassword(String password, String repeatPassword) {
-        var errors = new ArrayList<String>();
-        if (!password.equals(repeatPassword)) {
-            errors.add("The two password must be equal.");
-        }
-        if (password.length() < 8) {
-            errors.add("Password must be at least 8 characters long.");
-        }
-        if (!password.matches(".*[a-z].*")) {
-            errors.add("Password must contain at least one lowercase letter.");
-        }
-        if (!password.matches(".*[A-Z].*")) {
-            errors.add("Password must contain at least one uppercase letter.");
-        }
-        if (!password.matches(".*[0-9].*")) {
-            errors.add("Password must contain at least one digit.");
-        }
-        if (!password.matches(".*\\W.*")) {
-            errors.add("Password must contain at least one special character.");
-        }
-        return errors;
-    }
-
-    /**
-     * Validate username.
-     *
-     * @param username
-     * @return error messages if username is invalid, null otherwise.
-     */
-    public static List<String> validateUsername(String username) {
-        var errors = new ArrayList<String>();
-        if (username.length() < 3) {
-            errors.add("Username must be at least 3 characters long.");
-        }
-        if (username.length() > 255) {
-            errors.add("Username must be at most 255 characters long.");
-        }
-        if (!username.matches("[ a-zA-Z0-9]+")) {
-            errors.add("Username must only contain alphanumeric characters.");
-        }
-        if (username.matches(".*\\s.*")) {
-            errors.add("Username must not contain whitespace.");
-        }
-        return errors;
-    }
-
-    /**
      * @param bytes
      *            The bytes to be encoded.
      * @return The bytes encoded with base64
      */
-    public static String base64encode(byte[] bytes) {
+    public static String base64Encode(byte[] bytes) {
         return Base64.getUrlEncoder().encodeToString(bytes);
     }
 

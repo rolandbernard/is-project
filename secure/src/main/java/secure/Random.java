@@ -30,7 +30,7 @@ public class Random extends java.util.Random {
     }
 
     public String nextBytesBase64(int size) {
-        return Utils.base64encode(nextBytes(size));
+        return Utils.base64Encode(nextBytes(size));
     }
 
     public byte[] nextBytes(int size) {

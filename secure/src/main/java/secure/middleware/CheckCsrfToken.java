@@ -10,6 +10,8 @@ public class CheckCsrfToken implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
+        // We allow GET requests even without a CSRF token, since all our actions are
+        // performed via POST requests.
         if (!request.getMethod().equals("GET")) {
             var session = request.getSession(true);
             var requestToken = request.getParameter("csrf-token");

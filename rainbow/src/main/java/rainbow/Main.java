@@ -41,7 +41,7 @@ public class Main {
         } else if (args.length >= 3 && args.length % 2 == 0 && args[0].equals("find")) {
             var hash = new byte[args[1].length() / 2];
             for (int i = 0; i < hash.length; i++) {
-                hash[i] = (byte)Integer.parseInt(args[1].substring(2 * i, 2 * i + 2), 16);
+                hash[i] = (byte) Integer.parseInt(args[1].substring(2 * i, 2 * i + 2), 16);
             }
             var gens = new RainbowGen[(args.length - 2) / 2];
             var tables = new RainbowTable[(args.length - 2) / 2];
