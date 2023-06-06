@@ -114,20 +114,8 @@ public class Auth {
         if (!password.equals(repeatPassword)) {
             errors.add("The two password must be equal.");
         }
-        if (password.length() < 8) {
-            errors.add("Password must be at least 8 characters long.");
-        }
-        if (!password.matches(".*[a-z].*")) {
-            errors.add("Password must contain at least one lowercase letter.");
-        }
-        if (!password.matches(".*[A-Z].*")) {
-            errors.add("Password must contain at least one uppercase letter.");
-        }
-        if (!password.matches(".*[0-9].*")) {
-            errors.add("Password must contain at least one digit.");
-        }
-        if (!password.matches(".*\\W.*")) {
-            errors.add("Password must contain at least one special character.");
+        if (password.length() < 3) {
+            errors.add("Password must be at least 3 characters long.");
         }
         return errors;
     }
