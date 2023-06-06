@@ -102,7 +102,6 @@ public class User {
                 var salt = results.getBytes("salt");
                 var passwordHash = Hash.passwordHash(password, salt, "password hash", 32);
                 if (!Arrays.equals(passwordHash, results.getBytes("password"))) {
-                    Thread.sleep(1000);
                     return null;
                 }
                 var rsaPublicKey = RsaKey.fromByteArray(results.getBytes("rsa_public_key"));
@@ -115,7 +114,6 @@ public class User {
                 return new User(results.getString("id"), results.getString("username"),
                         results.getInt("is_vendor"), rsaPublicKey, rsaPrivateKey, dhPublicKey, dhPrivateKey);
             } else {
-                Thread.sleep(1000);
                 return null;
             }
         } finally {

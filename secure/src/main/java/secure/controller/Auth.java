@@ -35,6 +35,7 @@ public class Auth {
         try (var db = new Database()) {
             var user = User.getUser(db, username, password);
             if (user == null) {
+                Thread.sleep(1000);
                 model.addAttribute("error", "Invalid username or password");
                 model.addAttribute("origin", origin);
                 return "auth/login";
@@ -87,8 +88,11 @@ public class Auth {
         var user = (User) request.getAttribute("user");
         try (var db = new Database()) {
             var errors = validatePassword(newPassword, passwordRepeat);
-            if (!errors.isEmpty() || User.getUser(db, user.username, password) == null) {
+            if (User.getUser(db, user.username, password) == null) {
+                Thread.sleep(1000);
                 errors.add("The old password is wrong");
+            }
+            if (!errors.isEmpty()) {
                 model.addAttribute("errors", errors);
                 return "auth/password";
             }
