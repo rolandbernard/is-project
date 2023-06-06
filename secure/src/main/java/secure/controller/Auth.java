@@ -121,17 +121,16 @@ public class Auth {
     }
 
     /**
-     * Validate the origin redirect after successful login. Allow only absolute redirects inside this application.
+     * Validate the origin redirect after successful login. Allow only absolute
+     * redirects inside this application.
      *
-     * @param origin the utl to validate
+     * @param origin
+     *            the utl to validate
      * @return true if redirect is allowed, false otherwise.
      */
     private static boolean validateOriginRedirect(String origin) {
         try {
             var uri = new URI(origin);
-            System.out.println(uri.getPath());
-            System.out.println(uri.getAuthority());
-            System.out.println(uri.getScheme());
             return uri.getPath().startsWith("/") && uri.getAuthority() == null && uri.getScheme() == null;
         } catch (URISyntaxException | NullPointerException e) {
             return false;
